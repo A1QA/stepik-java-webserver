@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.alternation</groupId>
+    <artifactId>stepik-webserver</artifactId>
+    <version>0.9</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>L1.1 Simple web server</module>
+        <module>L2.1 Authorization</module>
+        <module>L3.1 JDBC</module>
+        <module>L3.2 ORM</module>
+        <module>L4.1 WebSockets</module>
+        <module>L5.1 Tests</module>
+        <module>L6.1 Properties</module>
+        <module>L6.2 IO</module>
+        <module>L6.3 XML</module>
+        <module>L6.4 NIO</module>
+        <module>L7.1 Run</module>
+        <module>L7.2 Race</module>
+    </modules>
+
+</project>
+

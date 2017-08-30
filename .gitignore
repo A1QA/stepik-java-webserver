@@ -1,2 +1,19 @@
-.idea
+# idea project files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse project files
+.classpath
+.project
+
+# Java class files
+*.class
+
 target
+
+# Package Files #
+*.jar
+*.war
+*.ear
