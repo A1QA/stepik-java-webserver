@@ -8,6 +8,12 @@
     <artifactId>L5.1</artifactId>
     <version>1.0</version>
 
+    <parent>
+        <groupId>ogr.stepik</groupId>
+        <artifactId>stepik-webserver</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <properties>
         <org.eclipse.jetty.version>9.3.0.M1</org.eclipse.jetty.version>
         <org.apache.logging.log4j.version>2.2</org.apache.logging.log4j.version>
