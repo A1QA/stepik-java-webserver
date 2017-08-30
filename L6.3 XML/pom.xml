@@ -8,5 +8,10 @@
     <artifactId>L6.3</artifactId>
     <version>1.0</version>
 
+    <parent>
+        <groupId>ogr.stepik</groupId>
+        <artifactId>stepik-webserver</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
 </project>
