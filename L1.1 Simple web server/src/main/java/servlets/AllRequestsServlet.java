@@ -34,6 +34,7 @@ public class AllRequestsServlet extends HttpServlet {
 
     public void doPost(HttpServletRequest request,
                        HttpServletResponse response) throws ServletException, IOException {
+
         Map<String, Object> pageVariables = createPageVariablesMap(request);
 
         String message = request.getParameter("message");
