@@ -59,6 +59,22 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <plugin> <!-- но в jar'у все равно не хватает зависимостей на сеервлеты и фримейкер
+                            надо юзать assembly:single http://logicbig.com/tutorials/apache-maven/assembly-plugin/
+                            -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>main.Main</mainClass>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

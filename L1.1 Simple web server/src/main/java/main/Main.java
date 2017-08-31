@@ -12,15 +12,6 @@ import servlets.MirrorServlet;
  *         Пример кода для курса на https://stepic.org/
  *         <p>
  *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
- *
- *
- *         Запускать с помощью exec:java плагина. Посколькую рабочая директория при запуске из IDE -- корень проекта, а
- *         не модуля. И относительно нее будет искаться "templates\page.html".
- *         Или просто в настройках запуска выбрать папку. (Run/Debug configurations -> Working Directory)
- *         Иначе: "freemarker.template.TemplateNotFoundException: Template not found for name "templates\\page.html"."
- *
- *
- *
  */
 public class Main {
     public static void main(String[] args) throws Exception {
