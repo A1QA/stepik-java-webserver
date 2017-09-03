@@ -14,7 +14,16 @@ import java.io.IOException;
  *         Пример кода для курса на https://stepic.org/
  *         <p>
  *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
+ * <p>
+ * https://toster.ru/q/136265
+ * REST (RESTful)
+ * <p>
+ * 1. получение - GET
+ * 2. добавление - POST
+ * 3. модификация - PUT
+ * 4. удаление - DELETE
  */
+
 public class UsersServlet extends HttpServlet {
     @SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"}) //todo: remove after module 2 home work
     private final AccountService accountService;
