@@ -11,9 +11,9 @@ import java.io.Serializable;
  *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
  */
 @Entity
-@Table(name = "users")
-public class UsersDataSet implements Serializable { // Serializable Important to Hibernate!
-    private static final long serialVersionUID = -8706689714326132798L;
+@Table(name = "users_lesson")
+public class UsersDataSet implements Serializable {
+    private static final long serialVersionUID = -3581752392903938614L; // Serializable Important to Hibernate!
 
     @Id
     @Column(name = "id")

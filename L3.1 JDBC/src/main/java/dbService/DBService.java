@@ -19,7 +19,8 @@ public class DBService {
     private final Connection connection;
 
     public DBService() {
-        this.connection = getH2Connection();
+        //this.connection = getH2Connection();
+        this.connection = getMysqlConnection();
     }
 
     public UsersDataSet getUser(long id) throws DBException {
@@ -63,19 +64,23 @@ public class DBService {
 
     public void printConnectInfo() {
         try {
-            System.out.println("DB name: " + connection.getMetaData().getDatabaseProductName());
+            System.out.println("\n----------------------------------");
+            System.out.println("DB name: "    + connection.getMetaData().getDatabaseProductName());
             System.out.println("DB version: " + connection.getMetaData().getDatabaseProductVersion());
-            System.out.println("Driver: " + connection.getMetaData().getDriverName());
+            System.out.println("Driver: "     + connection.getMetaData().getDriverName());
             System.out.println("Autocommit: " + connection.getAutoCommit());
+            System.out.println("Transaction isolation: " + connection.getTransactionIsolation());
+            System.out.println("----------------------------------\n");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    @SuppressWarnings("UnusedDeclaration")
+    //@SuppressWarnings("UnusedDeclaration")
     public static Connection getMysqlConnection() {
         try {
-            DriverManager.registerDriver((Driver) Class.forName("com.mysql.jdbc.Driver").newInstance());
+            // необязательно
+            DriverManager.registerDriver((Driver) Class.forName("com.mysql.cj.jdbc.Driver").newInstance());
 
             StringBuilder url = new StringBuilder();
 
@@ -83,9 +88,12 @@ public class DBService {
                     append("jdbc:mysql://").        //db type
                     append("localhost:").           //host name
                     append("3306/").                //port
-                    append("db_example?").          //db name
-                    append("user=tully&").          //login
-                    append("password=tully");       //password
+                    append("db_example?").          //db name // CREATE SCHEMA db_example;
+                    append("user=root&").           //login
+                    append("password=root").        //password
+
+                    append("&useLegacyDatetimeCode=false"). // fix for 6.0 "mysql-connector-java"
+                    append("&&serverTimezone=UTC");
 
             System.out.println("URL: " + url + "\n");
 
@@ -97,6 +105,7 @@ public class DBService {
         return null;
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     public static Connection getH2Connection() {
         try {
             String url = "jdbc:h2:./h2db";

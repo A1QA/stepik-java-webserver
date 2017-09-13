@@ -19,18 +19,24 @@ public class Executor {
         this.connection = connection;
     }
 
-    public void execUpdate(String update) throws SQLException {
+    public int execUpdate(String update) throws SQLException {
         Statement stmt = connection.createStatement();
-        stmt.execute(update);
+
+//      stmt.execute(update);
+        int result = stmt.executeUpdate(update);
         stmt.close();
+        return result;
     }
 
     public <T> T execQuery(String query,
-                           ResultHandler<T> handler)
+                           ResultSetHandler<T> handler)
             throws SQLException {
         Statement stmt = connection.createStatement();
-        stmt.execute(query);
-        ResultSet result = stmt.getResultSet();
+
+        //stmt.execute(query);
+        //ResultSet result = stmt.getResultSet();
+        ResultSet result = stmt.executeQuery(query);
+
         T value = handler.handle(result);
         result.close();
         stmt.close();

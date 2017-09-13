@@ -12,6 +12,8 @@ import java.sql.SQLException;
  *         Пример кода для курса на https://stepic.org/
  *         <p>
  *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
+ *
+ *         https://ru.wikipedia.org/wiki/Data_Access_Object
  */
 public class UsersDAO {
 

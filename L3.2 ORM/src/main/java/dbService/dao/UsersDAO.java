@@ -6,6 +6,10 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 /**
  * @author v.chibrikov
  *         <p>
@@ -22,12 +26,22 @@ public class UsersDAO {
     }
 
     public UsersDataSet get(long id) throws HibernateException {
+        //return session.get(UsersDataSet.class, id); // new hibernate 5.2.10.Final
         return (UsersDataSet) session.get(UsersDataSet.class, id);
     }
 
     public long getUserId(String name) throws HibernateException {
-        Criteria criteria = session.createCriteria(UsersDataSet.class);
-        return ((UsersDataSet) criteria.add(Restrictions.eq("name", name)).uniqueResult()).getId();
+
+        // for new hibernate 5.2.10.Final
+//        // https://stackoverflow.com/questions/40720799/deprecated-createcriteria-method-in-hibernate-5
+//        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
+//        CriteriaQuery<UsersDataSet> criteria = criteriaBuilder.createQuery(UsersDataSet.class);
+//
+//        Root<UsersDataSet> usersDataSetRoot = criteria.from(UsersDataSet.class);
+//        return ((UsersDataSet)criteria.where(criteriaBuilder.equal(usersDataSetRoot.get("name"), name))).getId();
+
+        Criteria criteriaOld = session.createCriteria(UsersDataSet.class);
+        return ((UsersDataSet) criteriaOld.add(Restrictions.eq("name", name)).uniqueResult()).getId();
     }
 
     public long insertUser(String name) throws HibernateException {
