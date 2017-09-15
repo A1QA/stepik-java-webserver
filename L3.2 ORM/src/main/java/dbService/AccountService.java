@@ -1,25 +1,26 @@
-package dbService.dataSets;
+package dbService;
 
-import dbService.DBException;
-import dbService.DBService;
+import dbService.dataSets.User;
 
 import java.util.Optional;
 
 public class AccountService {
 
     private static DBService dbService;
+
     static {
         dbService = new DBService();
         System.out.println("AccountService loaded");
     }
-    private AccountService() {}
+
+    private AccountService() {
+    }
 
 
-    public static boolean signUp(String login, String password)  {
+    public static boolean signUp(String login, String password) {
 
         boolean result = false;
         try {
-
             Optional<User> user = Optional.ofNullable(dbService.getUserByLogin(login));
             if (user.isPresent()) {
                 result = false;
@@ -36,7 +37,7 @@ public class AccountService {
 
     }
 
-    public static boolean signIn(String login, String password)  {
+    public static boolean signIn(String login, String password) {
 
         return checkRegister(login) && checkPassword(login, password);
     }

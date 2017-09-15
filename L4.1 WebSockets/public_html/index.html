@@ -3,6 +3,8 @@
     <meta charset="UTF-8"/>
     <title>L4.1: Jetty WebSocket Chat</title>
     <script type="text/javascript">
+        // https://learn.javascript.ru/websockets
+
         var ws;
 
         function init() {
@@ -22,7 +24,10 @@
         function sendMessage() {
             var messageField = document.getElementById("message");
             var userNameField = document.getElementById("username");
+
             var message = userNameField.value + ":" + messageField.value;
+            //var message = messageField.value; // для выполнения задания выводить без юзернейма
+
             ws.send(message);
             messageField.value = '';
         }
@@ -42,7 +47,7 @@
         <textarea id="messages" rows="20" cols="50" readonly="readonly"></textarea>
     </div>
 
-    <form name="message" action="">
+    <form name="message" action="" onsubmit="sendMessage();return false;"> <!-- Скрипт, – чтобы страница не перезагружалсь при нажатии на Enter -->
         <input name="usermsg" type="text" id="message" size="40"/>
         <input type="button" name="submitmsg" value="Send..." onclick="sendMessage();"/>
     </form>
