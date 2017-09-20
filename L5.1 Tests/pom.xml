@@ -14,24 +14,24 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+
     <properties>
         <org.eclipse.jetty.version>9.3.0.M1</org.eclipse.jetty.version>
         <org.apache.logging.log4j.version>2.2</org.apache.logging.log4j.version>
         <junit.version>4.11</junit.version>
         <org.mockito.version>1.8.4</org.mockito.version>
     </properties>
-	
+
 	<build>
+
+        <resources>
+            <resource>
+                <directory>cfg</directory>
+            </resource>
+        </resources>
+
+
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.3</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
 
@@ -49,6 +49,89 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>example.Main</mainClass>
+                    <includeProjectDependencies>true</includeProjectDependencies>
+                    <!-- <commandlineArgs>8080</commandlineArgs>  -->
+                    <arguments>
+                        <argument>8080</argument>
+                    </arguments>
+                    <!-- https://stackoverflow.com/a/20810020/6472224 -->
+                    <systemProperties>
+                        <systemProperty>
+                            <key>log4j.configurationFile</key>
+                            <value>cfg/log4j2.xml</value>
+                        </systemProperty>
+                    </systemProperties>
+                </configuration>
+            </plugin>
+
+
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-surefire-plugin</artifactId>-->
+                <!--<version>2.20.1</version>-->
+                <!--<configuration>-->
+                    <!--<systemPropertyVariables>-->
+                        <!--<propertyName>log4j.configurationFile=cfg/log4j2.xml</propertyName>-->
+                    <!--</systemPropertyVariables>-->
+
+                    <!--<systemProperties>-->
+                        <!--<systemProperty>-->
+                            <!--<name>log4j.configurationFile</name>-->
+                            <!--<value>cfg/log4j2.xml</value>-->
+                        <!--</systemProperty>-->
+                    <!--</systemProperties>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>properties-maven-plugin</artifactId>-->
+                <!--<version>1.0.0</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>set-system-properties</goal>-->
+                        <!--</goals>-->
+                        <!--<configuration>-->
+                            <!--<properties>-->
+                                <!--<systemProperties>-->
+                                    <!--<systemProperty>-->
+                                        <!--<name>log4j.configurationFile</name>-->
+                                        <!--<value>cfg/log4j2.xml</value>-->
+                                    <!--</systemProperty>-->
+                                <!--</systemProperties>-->
+
+                                <!--<systemPropertyVariables>-->
+                                    <!--<propertyName>log4j.configurationFile=cfg/log4j2.xml</propertyName>-->
+                                <!--</systemPropertyVariables>-->
+
+                                <!--<log4j.configurationFile>cfg/log4j2.xml</log4j.configurationFile>-->
+
+                                <!--<property>-->
+                                    <!--<name>log4j.configurationFile</name>-->
+                                    <!--<value>cfg/log4j2.xml</value>-->
+                                <!--</property>-->
+                            <!--</properties>-->
+                        <!--</configuration>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+
+
         </plugins>
     </build>
 

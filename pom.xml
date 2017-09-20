@@ -25,7 +25,9 @@
         <module>L7.2 Race</module>
     </modules>
 
+
     <build>
+
         <plugins>
 
             <plugin>

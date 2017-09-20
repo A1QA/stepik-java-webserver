@@ -19,7 +19,7 @@ import java.io.IOException;
  *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
  */
 public class HomePageServlet extends HttpServlet {
-    static final Logger logger = LogManager.getLogger(HomePageServlet.class.getName());
+    private static final Logger logger = LogManager.getLogger(HomePageServlet.class.getName());
     public static final String PAGE_URL = "/home";
     private final AccountServerI accountServer;
 
@@ -32,12 +32,13 @@ public class HomePageServlet extends HttpServlet {
 
         response.setContentType("text/html;charset=utf-8");
 
-        String remove = request.getParameter("remove");
+        String remove = request.getParameter("remove"); // http://127.0.0.1:8080/home?remove
 
         if (remove != null) {
             accountServer.removeUser();
             response.getWriter().println("Hasta la vista!");
             response.setStatus(HttpServletResponse.SC_OK);
+            logger.info("Remove user");
             return;
         }
 
