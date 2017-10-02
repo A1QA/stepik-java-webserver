@@ -1,14 +1,7 @@
-package reflection;
+package xml.reflection;
 
 import java.lang.reflect.Field;
 
-/**
- * @author v.chibrikov
- *         <p>
- *         Пример кода для курса на https://stepic.org/
- *         <p>
- *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
- */
 public class ReflectionHelper {
     public static Object createInstance(String className) {
         try {
@@ -28,11 +21,11 @@ public class ReflectionHelper {
 
             Types type = Types.getType(field.getType());
             switch (type) {
-                case BYTE:
-                    field.set(object, Byte.valueOf(value));
-                    break;
                 case BOOLEAN:
                     field.set(object, Boolean.valueOf(value));
+                    break;
+                case BYTE:
+                    field.set(object, Byte.valueOf(value));
                     break;
                 case SHORT:
                     field.set(object, Short.valueOf(value));
