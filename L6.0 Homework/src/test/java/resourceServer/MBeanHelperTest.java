@@ -25,7 +25,7 @@ public class MBeanHelperTest {
      *
      * Приконнектиться к com.intellij.rt.execution.junit.JUnitStarter
      *
-     * Врямя на проверку 60 секунд -- указано в методе tearDown().
+     * Врямя на проверку ~60 секунд -- указано в методе tearDown().
      */
     @Test
     @Ignore

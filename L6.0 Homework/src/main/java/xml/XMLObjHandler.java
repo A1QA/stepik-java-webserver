@@ -13,6 +13,7 @@ public class XMLObjHandler extends DefaultHandler {
     private static final String CLASSNAME = "class";
     private String element = null;
     private Object object = null;
+    private StringBuilder stringBuilder = null;
 
     public void startDocument() throws SAXException {
         logger.info("Start document");
@@ -33,14 +34,28 @@ public class XMLObjHandler extends DefaultHandler {
     }
 
     public void endElement(String uri, String localName, String qName) throws SAXException {
-        element = null;
+        if (element != null){
+            ReflectionHelper.setFieldValue(object, element, stringBuilder.toString());
+            stringBuilder = null;
+            element = null;
+        }
     }
 
+    // https://stackoverflow.com/a/4567652/6472224
     public void characters(char ch[], int start, int length) throws SAXException {
         if (element != null) {
-            String value = new String(ch, start, length);
-            logger.info(element + " = " + value);
-            ReflectionHelper.setFieldValue(object, element, value);
+            if (stringBuilder == null) {
+                stringBuilder = new StringBuilder();
+            }
+            String chunk = new String(ch, start, length); // если прочтется лишь часть, см. ссылку
+            stringBuilder.append(chunk);
+            logger.info(element + " = " + chunk);
+
+
+            /* Можно, конечно, просто так, но см. ссылку */
+            //String value = new String(ch, start, length);
+            //logger.info(element + " = " + value);
+            //ReflectionHelper.setFieldValue(object, element, value);
         }
     }
 
