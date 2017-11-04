@@ -1,5 +1,6 @@
 package main;
 
+import server.EchoSocketHandlerCreator;
 import server.Server;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ import java.io.IOException;
 public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        new Server().join();
+        new Server(new EchoSocketHandlerCreator()).join();
         System.out.println("Main finished");
     }
 }

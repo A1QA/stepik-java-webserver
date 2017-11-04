@@ -10,7 +10,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-public class EchoSocketHandler implements Runnable {
+public class EchoSocketHandler implements SocketHandler {
 
     private String endMessage;
     private Socket socket;

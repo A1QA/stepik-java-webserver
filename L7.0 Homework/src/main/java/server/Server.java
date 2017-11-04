@@ -8,10 +8,12 @@ public class Server extends Thread {
     private static final int PORT = 5050;
     private int workCount; // сколько обработать соединений и завершиться
     private ServerSocket serverSocket;
+    private SocketHandlerCreator creator;
 
-    public Server() throws IOException {
-        serverSocket = new ServerSocket(PORT);
-        workCount = 10;
+    public Server(SocketHandlerCreator socketHandlerCreator) throws IOException {
+        this.creator = socketHandlerCreator;
+        this.serverSocket = new ServerSocket(PORT);
+        this.workCount = 10;
         //setDaemon(true); // иначе java.util.concurrent.ExecutionException: base.d: java.net.SocketException: Connection reset
         System.out.println("Server started");
         start();
@@ -19,7 +21,6 @@ public class Server extends Thread {
 
     @Override
     public void run() {
-
         while (true) {
             System.out.println(workCount);
             try {
@@ -29,7 +30,8 @@ public class Server extends Thread {
                 --workCount;
                 System.out.println("Wait connection...");
                 Socket socket = serverSocket.accept();
-                new Thread(new EchoSocketHandler(socket)).start();
+                new Thread(creator.createSocketHandler(socket)).start(); // Сделал Factory Method,
+                //new Thread(new EchoSocketHandler(socket)).start();     // <- хотя можно было и оставить так. И не городить лишние классы.
 
             } catch (IOException e) {
                 e.printStackTrace();
