@@ -30,9 +30,10 @@ public class EchoSocketHandler implements Runnable {
             PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream)), true);
 
             System.out.println("In run() - " + Thread.currentThread().getName());
-            while (!socket.isClosed()) {
+            while (!socket.isClosed()) { // (true) -- работать будет, но с java.net.SocketException: Software caused connection abort: recv failed
+                                         // если если endMessage неправильный
                 String message = in.readLine();
-                if (message.equals(endMessage)) { // message == null -- можно и так сделать
+                if (message == null || message.equals(endMessage)) { // message == null -- если endMessage неправильный
                     break;
                 }
                 out.println(message);
@@ -51,6 +52,5 @@ public class EchoSocketHandler implements Runnable {
         }
 
         System.out.println("Ended - " + Thread.currentThread().getName());
-
     }
 }

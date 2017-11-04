@@ -6,12 +6,14 @@ import java.net.Socket;
 
 public class Server extends Thread {
     private static final int PORT = 5050;
-    private int workCount;
+    private int workCount; // сколько обработать соединений и завершиться
     private ServerSocket serverSocket;
 
     public Server() throws IOException {
         serverSocket = new ServerSocket(PORT);
         workCount = 10;
+        //setDaemon(true); // иначе java.util.concurrent.ExecutionException: base.d: java.net.SocketException: Connection reset
+        System.out.println("Server started");
         start();
     }
 
@@ -25,7 +27,7 @@ public class Server extends Thread {
                     break;
                 }
                 --workCount;
-                System.out.println("Wait...");
+                System.out.println("Wait connection...");
                 Socket socket = serverSocket.accept();
                 new Thread(new EchoSocketHandler(socket)).start();
 
@@ -33,8 +35,16 @@ public class Server extends Thread {
                 e.printStackTrace();
             }
         }
+        closeSocket();
         System.out.println("Server finished...");
     }
 
+    private void closeSocket(){
+        try {
+            this.serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

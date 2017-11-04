@@ -8,6 +8,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *         Пример кода для курса на https://stepic.org/
  *         <p>
  *         Описание курса и лицензия: https://github.com/vitaly-chibrikov/stepic_java_webserver
+ *
+ *
+ *
  */
 public class Main {
     private static final int HUNDRED_MILLION = 100_000_000;
@@ -21,15 +24,36 @@ public class Main {
 
         RaceExample callable01 = new RaceExample(counter, realCountNumber);
         RaceExample callable02 = new RaceExample(counter, realCountNumber);
+        RaceExample callable03 = new RaceExample(counter, realCountNumber);
+        RaceExample callable04 = new RaceExample(counter, realCountNumber);
+        RaceExample callable05 = new RaceExample(counter, realCountNumber);
 
         long startTime = (new Date()).getTime();
 
         Future<Integer> future01 = executorService.submit(callable01);
         Future<Integer> future02 = executorService.submit(callable02);
+        Future<Integer> future03 = executorService.submit(callable03);
+        Future<Integer> future04 = executorService.submit(callable04);
+        Future<Integer> future05 = executorService.submit(callable05);
 
         System.out.println("Future01: " + future01.get());
         System.out.println("Future02: " + future02.get());
+        System.out.println("Future03: " + future03.get());
+        System.out.println("Future04: " + future04.get());
+        System.out.println("Future05: " + future05.get());
         System.out.println("RealCountNumber: " + realCountNumber);
+
+
+        /*
+        Output:
+         Future01: 100000000
+         Future02: 100000000
+         Future03: 100000000
+         Future04: 100000000
+         Future05: 100000000
+         RealCountNumber: 100000005
+         Time spent: 2602
+        */
 
         long finishTime = (new Date()).getTime();
         System.out.println("Time spent: " + (finishTime - startTime));
@@ -47,10 +71,12 @@ public class Main {
 
         @Override
         public Integer call() throws Exception {
-            while (realCountNumber.incrementAndGet() < HUNDRED_MILLION) {
+            while (realCountNumber.incrementAndGet() <= HUNDRED_MILLION) {
                 counter.increment();
             }
             return counter.getCount();
         }
     }
 }
+
+

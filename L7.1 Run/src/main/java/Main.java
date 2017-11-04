@@ -20,7 +20,7 @@ public class Main {
 
     private static class RandomSequenceExample extends Thread {
         public void run() {
-            //System.out.println("Run: " + this.getName());
+            System.out.println("Run: " + this.getName());
         }
     }
 
