@@ -8,6 +8,8 @@
     <artifactId>L7.3</artifactId>
     <version>1.0</version>
 
+    <name>Message system</name>
+
     <build>
         <plugins>
             <plugin>

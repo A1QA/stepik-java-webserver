@@ -23,6 +23,11 @@
         <module>L6.4 NIO</module>
         <module>L7.1 Run</module>
         <module>L7.2 Race</module>
+
+
+        <module>L6.0 Homework</module>
+        <module>L7.0 Homework</module>
+        <module>L7.3 MS</module>
     </modules>
 
 
