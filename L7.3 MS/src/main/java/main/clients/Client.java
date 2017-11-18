@@ -22,7 +22,7 @@ public class Client extends Thread {
         this.service = service;
         this.name = name;
         this.password = name;
-        setName(name);
+        setName(name); // метод класса Thread
     }
 
     @Override

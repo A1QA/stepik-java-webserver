@@ -8,19 +8,24 @@ import messageSystem.MessageSystem;
 
 /**
  * @author e.shubin
- * https://github.com/esin88/MessageSystem
- * https://youtu.be/sv3nwJHKGS0
+ * Original:        https://github.com/esin88/MessageSystem
+ *
+ * Addition lesson: https://youtu.be/sv3nwJHKGS0
+ *                  https://park.mail.ru/materials/video/887/
  */
 public final class Main {
     public static void main(String[] args) {
 
         final MessageSystem messageSystem = new MessageSystem();
+
         final Thread accountServiceThread = new Thread(new AccountService(messageSystem));
         accountServiceThread.setDaemon(true);
         accountServiceThread.setName("Account Service");
+
         final Thread gameMechanicsThread = new Thread(new GameMechanics(messageSystem));
         gameMechanicsThread.setDaemon(true);
         gameMechanicsThread.setName("Game Mechanics");
+
         final FrontEnd frontEnd = new FrontEnd(messageSystem);
         final Thread frontEndThread = new Thread(frontEnd);
         frontEndThread.setDaemon(true);

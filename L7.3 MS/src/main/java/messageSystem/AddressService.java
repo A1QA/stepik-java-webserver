@@ -16,6 +16,7 @@ public final class AddressService {
     private Address gameMechanics;
     private List<Address> accountServiceList = new ArrayList<>();
 
+    // для чего-то из разряда балансировки нагрузки, если AccountService'ов несколько
     private AtomicInteger accountServiceCounter = new AtomicInteger();
 
     public void registerFrontEnd(FrontEnd frontEnd) {
@@ -39,10 +40,7 @@ public final class AddressService {
     }
 
     public synchronized Address getAccountServiceAddress() {
-        int index = accountServiceCounter.getAndIncrement();
-        if (index >= accountServiceList.size()) {
-            index = 0;
-        }
+        final int index = accountServiceCounter.getAndIncrement() % accountServiceList.size();
         return accountServiceList.get(index);
     }
 }

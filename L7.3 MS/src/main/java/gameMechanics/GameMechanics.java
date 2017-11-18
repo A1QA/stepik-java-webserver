@@ -45,11 +45,12 @@ public final class GameMechanics implements Abonent, Runnable {
     public void run() {
         while (true) {
             messageSystem.execForAbonent(this);
-            try {
-                Thread.sleep(ThreadSettings.SERVICE_SLEEP_TIME);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            ThreadSettings.serviceSleep();
+//            try {
+//                Thread.sleep(ThreadSettings.SERVICE_SLEEP_TIME);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
         }
     }
 }
