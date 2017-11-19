@@ -20,13 +20,13 @@ public class Main {
 
     private static class RandomSequenceExample extends Thread {
         public void run() {
-            System.out.println("Run: " + this.getName());
+            System.out.println("Run and finished: " + this.getName());
         }
     }
 
     @SuppressWarnings("UnusedDeclaration")
     private static class SerialSequenceExample extends Thread {
-        private static int currentMax = 1;
+        private static int currentMax = 0;
         private int mainId;
         private final static Object waitObject = new Object();
 
@@ -44,7 +44,7 @@ public class Main {
                     }
 
                     currentMax++;
-                    //System.out.println("Finished: " + mainId);
+                    System.out.println("Finished: " + mainId);
                     waitObject.notifyAll();
                 }
             } catch (InterruptedException e) {
