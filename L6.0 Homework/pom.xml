@@ -6,7 +6,7 @@
 
     <!--<groupId>L6.0</groupId>-->
     <artifactId>L6.0</artifactId>
-    <version>1.0</version>
+    <!--<version>1.0-SNAPSHOT</version>-->
 
     <name>Homework 6</name>
 
@@ -14,6 +14,7 @@
         <groupId>ogr.stepik</groupId>
         <artifactId>stepik-webserver</artifactId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>

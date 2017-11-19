@@ -10,7 +10,10 @@ import messageSystem.Abonent;
 import messageSystem.Address;
 import messageSystem.Message;
 import messageSystem.MessageSystem;
-import sun.plugin.dom.exception.InvalidStateException;
+
+//import sun.plugin.dom.exception.InvalidStateException; // заменил на IllegalStateException
+// Ибо при компилировании Maven'ом "Compilation failure:  package sun.plugin.dom.exception does not exist"
+// https://stackoverflow.com/questions/24169576/jar-missing-sun-classes
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +79,7 @@ public final class FrontEnd implements FrontEndService, Abonent, Runnable {
     public int getScore(String sessionId) {
         final Account account = accountMap.get(sessionId);
         if (account == null) {
-            throw new InvalidStateException("Wrong session id");
+            throw new IllegalStateException("Wrong session id");
         }
 
         final UserScore userScore = scoreMap.get(account.getId());
@@ -87,7 +90,7 @@ public final class FrontEnd implements FrontEndService, Abonent, Runnable {
     public void updateScore(String sessionId, int delta) {
         final Account account = accountMap.get(sessionId);
         if (account == null) {
-            throw new InvalidStateException("Wrong session id");
+            throw new IllegalStateException("Wrong session id");
         }
 
         Message messageIncreaseScore = new MessageIncreaseScore(getAddress(), messageSystem.getAddressService().getGameMechanicsAddress(), scoreMap.get(account.getId()), delta);
