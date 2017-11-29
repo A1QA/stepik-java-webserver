@@ -34,7 +34,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.0</version>
+                <!--На этой версии можно отдельно скомпилировать, и потом запустить "assembly:single"-->
+                <version>2.2-beta-5</version>
+
+                <!--На этой (2.6) уже нужно "assembly:assembly", иначе с "assembly:single" класс файлы не добавятся в jar-->
+                <!--<version>2.6</version>-->
+
+                <!--На более новых версиях (3.0.0+) нужно исключительно составной коммандой "mvn compile assembly:single"-->
+                <!--Иначе опять jar будет без _наших_ класс файлов-->
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
