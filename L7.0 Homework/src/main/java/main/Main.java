@@ -6,6 +6,9 @@ import server.Server;
 import java.io.IOException;
 
 /**
+ * Ссылка на задание:
+ * https://stepik.org/lesson/13019/step/9
+ *
  * Пример из лекций:
  * https://github.com/esin88/MessageSystem
  * Альтернативная лекция:

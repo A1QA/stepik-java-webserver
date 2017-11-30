@@ -20,7 +20,7 @@ public class Client {
                 System.out.println("Сообщение отправлено...");
                 System.out.println("Получено: " + reader.readLine());
 
-                Thread.sleep(333);
+                Thread.sleep(133);
             }
         }
     }
