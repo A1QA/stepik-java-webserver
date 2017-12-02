@@ -39,8 +39,10 @@ public class Client {
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
             System.out.println("---Соединение установлено\n");
+            System.out.println(socket.getReceiveBufferSize());
+            System.out.println(socket.getSendBufferSize());
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 8; i++) {
 
 /*                try {
                     System.out.println("---Чтение: " + reader.readLine());
@@ -52,7 +54,8 @@ public class Client {
                 Thread.sleep(CLIENT_PAUSE1);
                 try {
                     //out.write("test 123 qwerty №" + i);
-                    out.write("test 123 qwerty №\n" + i); // reader.readLine() ожидает \n
+                    //out.write("test 123 qwerty №\n" + i); // reader.readLine() ожидает \n
+                    out.write(new char[6553]);
                     out.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -60,13 +63,13 @@ public class Client {
                 System.out.print("---Сообщение отправлено... "+i+"\n");
 
                 Thread.sleep(350);
-                try {
+/*                try {
                     System.out.println("---Чтение: ");
                     System.out.println("---" + reader.readLine());
                     System.out.println("---Прочитано");
                 } catch (IOException e) {
                     e.printStackTrace();
-                }
+                }*/
                 Thread.sleep(CLIENT_PAUSE2);
             }
 

@@ -43,9 +43,9 @@ public class Server implements Runnable {
     public  static final int CLIENT_PAUSE2      = 999;
 
     public  static final boolean CLIENT_PRINT_WRITER = false;
-    private static final boolean SERVER_CLOSE_SOCKET = true;
+    private static final boolean SERVER_CLOSE_SOCKET = false;
 
-    private static final int BUFFER_SIZE =33;
+    private static final int BUFFER_SIZE =3211;
 
     public static void main(String... args) throws InterruptedException {
 
@@ -54,7 +54,7 @@ public class Server implements Runnable {
 
         Thread client = new Thread(() -> {
             try {
-                sleep(1115);
+                //sleep(1115);
                 System.out.println("=client1");
                 Client.main();
                 System.out.println("=client2");
@@ -73,6 +73,8 @@ public class Server implements Runnable {
         System.out.println("=Прерывание работы сервера");
         server.interrupt();
         //client.join();
+//        Thread.sleep(4444);
+//        client.interrupt();
         System.out.println("=end of main");
     }
 
