@@ -24,19 +24,58 @@ import java.util.Set;
 
 public class Server implements Runnable {
 
+    /*
+    999 2299 0 999
+    Сервер прочел половину.
+
+
+     999 999 1999 999
+     сразу же закрыл
+
+
+     */
+    //todo регить n-й коннект у другого селектора в другом треде
+
+
+    private static final int SERVER_PAUSE_AFTER = 999;
+    private static final int SERVER_LIFE_TIME   = 2299;
+    public  static final int CLIENT_PAUSE1      = 0;
+    public  static final int CLIENT_PAUSE2      = 999;
+
+    public  static final boolean CLIENT_PRINT_WRITER = false;
+    private static final boolean SERVER_CLOSE_SOCKET = true;
+
+    private static final int BUFFER_SIZE =33;
+
     public static void main(String... args) throws InterruptedException {
 
         final int SERVER_PORT = 5050;
 
-        Thread thread = new Thread(new Server(SERVER_PORT));
-        thread.start();
 
-        Thread.sleep(115000);
-        System.out.println("Прерывание работы сервера");
-        thread.interrupt();
+        Thread client = new Thread(() -> {
+            try {
+                sleep(1115);
+                System.out.println("=client1");
+                Client.main();
+                System.out.println("=client2");
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        //client.setDaemon(true);
+        client.start();// run client
+
+        Thread server = new Thread(new Server(SERVER_PORT));
+        //server.setDaemon(true);
+        server.start();
+
+        Thread.sleep(SERVER_LIFE_TIME);
+        System.out.println("=Прерывание работы сервера");
+        server.interrupt();
+        //client.join();
+        System.out.println("=end of main");
     }
 
-    private static final int BUFFER_SIZE = 16;
     private final int port;
 
     public Server(int port) {
@@ -45,7 +84,6 @@ public class Server implements Runnable {
 
 
     /**
-     *
      * Про закрытие ресурсов:
      *
      * ServerSocketChannel и Selector закрываются благодоря блоку try-w-r.
@@ -60,6 +98,9 @@ public class Server implements Runnable {
      *
      * Если вызван interrupt() на потоке, в котором работает сервер, сервер сразу же прекращает работу, но соединения,
      * которые обычно закрываются в методе onRead(), тоже будут закрыты. У клиента в этом случает будет SocketException.
+     *
+     * interrupt(), в частности, прерывает блокирующий метод selector.select()
+     *
      * todo переслать уже полученные данные при интерапте
      * todo parse data для закрытия сокета
      *
@@ -101,19 +142,27 @@ public class Server implements Runnable {
                             }
                         } else {
                             System.out.println("Невалидный SelectionKey");
+                              /*Прерывание работы сервера
+                                Нет готовых каналов
+                                Поток прерыван во время sleep(333)
+                                Канал закрыт.
+                                Работа сервера завершена*/
                         }
                     }
                 } else {
                     System.out.println("Нет готовых каналов");
                 }
-                //sleep(333); // для экспериментов можно поставить паузу
+                sleep(SERVER_PAUSE_AFTER); // для экспериментов можно поставить паузу
+
             }
-            close(selector);
+            if (SERVER_CLOSE_SOCKET) {
+                close(selector);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Работа сервера завершена");
+        System.out.println("!Работа сервера завершена");
     }
 
     private void onAccept(SelectionKey key) {
@@ -126,15 +175,21 @@ public class Server implements Runnable {
 
             System.out.println("Установлено соединение с " + socketChannel.getRemoteAddress());
         } catch (IOException e) {
+            System.err.println("onAccept()");
             e.printStackTrace();
         }
     }
+
+    // todo циклик onWrite и onRead. хотя, надо и ограничение оставить, иначе может долго читать один канал и т.д.
+    // хотя тогда проще буффер увеличить же
+
+
 
     @SuppressWarnings("unchecked")
     private void onRead(SelectionKey key) {
         try {
             SocketChannel channel = (SocketChannel) key.channel();
-            //System.out.println("Чтение...");
+            System.out.println("Чтение...");
 
             SelectionKey selectionKey = channel.keyFor(key.selector());
             Deque<ByteBuffer> buffers = (Deque<ByteBuffer>) selectionKey.attachment();
@@ -166,7 +221,7 @@ public class Server implements Runnable {
             e.printStackTrace();
             try {
                 key.channel().close();
-                System.out.println("Канал закрыт");
+                System.out.println("Канал закрыт в методе onRead()");
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -208,7 +263,7 @@ public class Server implements Runnable {
             e.printStackTrace();
             try {
                 key.channel().close();
-                System.out.println("Канал закрыт");
+                System.out.println("Канал закрыт в методе onWrite()");
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -221,18 +276,14 @@ public class Server implements Runnable {
                     int interestOps = selectionKeys.interestOps();
                     int keyRW = SelectionKey.OP_READ | SelectionKey.OP_WRITE; // битовое сложение
 
-                      /*Если ключ заинтересован только в операциях OP_READ и/или OP_WRITE (но не OP_ACCEPT).*/
+                  /*Если ключ заинтересован только в операциях OP_READ и/или OP_WRITE (но не OP_ACCEPT).*/
                     if ((keyRW & interestOps) > 0) {
-                      /*Можно, конечно, было это и не делать, а закрывать все зарегистрированные у селектора каналы
-                        нескомтря на то, что канал с OP_ACCEPT находится в try-w-r, т.е. по-любому будет закрыт.*/
+                      /*Можно, конечно, было это и не делать, а закрывать _все_ зарегистрированные у селектора каналы
+                       *несмотря на то, что канал с OP_ACCEPT находится в try-w-r, т.е. по-любому будет закрыт.*/
                         try {
-                              /*Если работа сервера прекращена при активных соединениях, то
-                                    если со стороны сервера сокет (не) закрыть, у клиента будет:
-                                - Если не закрыть: java.net.SocketException: Connection reset
-                                - Если закрыть:    java.net.SocketException: Software caused connection abort: recv failed
-                                                                        (Исключение из метода BufferedReader.readLine())*/
+                            // todo сделать набор разных BrokeServer(с паузами и прекращеями работ в разных местах) для тестирования клиента
                             selectionKeys.channel().close();
-                            System.out.println("Канал закрыт.");
+                            System.out.println("Канал закрыт. В методе close()");
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -241,7 +292,8 @@ public class Server implements Runnable {
     }
 
     /**
-     * Либо просто вот так. (см. метод close())
+     * Либо просто вот так. (см. метод close(Selector selector) чуть выше)
+     * {@link nio_server.Server#close(Selector selector)}
      */
     private void closeSimple(Selector selector) {
         selector.keys().forEach(selectionKeys -> {
@@ -253,15 +305,15 @@ public class Server implements Runnable {
         });
     }
 
-
-
     private static void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("Поток прерыван во время sleep(" + millis + ")");
+        if (millis > 0) { // а то интерапт эксепшены даже при 0 могут быть
+            try {
+                Thread.sleep(millis);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                System.out.println("Поток прерыван во время sleep(" + millis + ")");
 //          e.printStackTrace();
+            }
         }
     }
 }
