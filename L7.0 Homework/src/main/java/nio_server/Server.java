@@ -10,8 +10,9 @@ import java.nio.channels.SocketChannel;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 
 /**
@@ -38,14 +39,14 @@ public class Server implements Runnable {
 
 
     private static final int SERVER_PAUSE_AFTER = 999;
-    private static final int SERVER_LIFE_TIME   = 2299;
+    private static final int SERVER_LIFE_TIME   = 12299;
     public  static final int CLIENT_PAUSE1      = 0;
     public  static final int CLIENT_PAUSE2      = 999;
 
     public  static final boolean CLIENT_PRINT_WRITER = false;
-    private static final boolean SERVER_CLOSE_SOCKET = false;
+    private static final boolean SERVER_CLOSE_SOCKET = true;
 
-    private static final int BUFFER_SIZE =3211;
+    private static final int BUFFER_SIZE = 64;
 
     public static void main(String... args) throws InterruptedException {
 
@@ -151,7 +152,7 @@ public class Server implements Runnable {
                                 Работа сервера завершена*/
                         }
                     }
-                } else {
+                } else { // если интерапт на блокирующем selector.select();
                     System.out.println("Нет готовых каналов");
                 }
                 sleep(SERVER_PAUSE_AFTER); // для экспериментов можно поставить паузу
@@ -194,9 +195,10 @@ public class Server implements Runnable {
             System.out.println("Чтение...");
 
             SelectionKey selectionKey = channel.keyFor(key.selector());
+            System.out.println("___"+selectionKey.isValid());
             Deque<ByteBuffer> buffers = (Deque<ByteBuffer>) selectionKey.attachment();
 
-            if (Objects.isNull(buffers)) {
+            if (isNull(buffers)) {
                 buffers = new LinkedList<>();
                 System.out.println("Список буфферов создан");
                 selectionKey.attach(buffers);
@@ -205,11 +207,14 @@ public class Server implements Runnable {
 
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-
+            System.out.println("Чтение в буффер");
             int bytesRead = channel.read(buffer);
+            System.out.println("Чтение в буффер завершено");
             if (bytesRead == -1) { // когда клиент сам закрыл сокет методом close()
-                System.out.println("Завершение соединения с " + channel.getRemoteAddress());
+                System.out.println("Завершение соединения с " + channel.getRemoteAddress() + " в onRead");
                 channel.close();   // + происходит удаление регистрации у селектора
+                // + SelectionKey становится невалидным (isValid()), и если на нем вызвать, например, метод interestOps(),
+                // то CancelledKeyException. "Заверншенный" SelectionKey удаляется при вызове selector.select()
             } else if (bytesRead > 0) {
                 buffers.addLast(buffer);
                 //System.out.println("Буффер добавлен");
@@ -238,8 +243,9 @@ public class Server implements Runnable {
 
             SelectionKey selectionKey = channel.keyFor(key.selector());
             Deque<ByteBuffer> buffers = (Deque<ByteBuffer>) selectionKey.attachment();
+            System.out.println("___"+selectionKey.isValid());
 
-            if (Objects.isNull(buffers)) {
+            if (isNull(buffers)) {
                 System.out.println("Список буфферов не создан");
                 return;
             }
@@ -273,22 +279,29 @@ public class Server implements Runnable {
     }
 
     private void close(Selector selector) {
+        System.out.println(selector.keys().size());
         selector.keys()
-                .forEach((SelectionKey selectionKeys) -> {
-                    int interestOps = selectionKeys.interestOps();
-                    int keyRW = SelectionKey.OP_READ | SelectionKey.OP_WRITE; // битовое сложение
+                .forEach((SelectionKey selectionKey) -> {
+                    System.out.println(selectionKey.isValid());
+                    if (selectionKey.isValid()) {  /* Иначе может быть, что .interestOps() -> java.nio.channels.CancelledKeyException,
+                                                       если ключ быз cancel() при close() его канала, но еще не удален из селектора,
+                                                       т.к. не был вызван метод select(). */
+                        int interestOps = selectionKey.interestOps();
+                        int keyRW = SelectionKey.OP_READ | SelectionKey.OP_WRITE; // битовое сложение
 
-                  /*Если ключ заинтересован только в операциях OP_READ и/или OP_WRITE (но не OP_ACCEPT).*/
-                    if ((keyRW & interestOps) > 0) {
-                      /*Можно, конечно, было это и не делать, а закрывать _все_ зарегистрированные у селектора каналы
-                       *несмотря на то, что канал с OP_ACCEPT находится в try-w-r, т.е. по-любому будет закрыт.*/
-                        try {
-                            // todo сделать набор разных BrokeServer(с паузами и прекращеями работ в разных местах) для тестирования клиента
-                            selectionKeys.channel().close();
-                            System.out.println("Канал закрыт. В методе close()");
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        /*Если ключ заинтересован только в операциях OP_READ и/или OP_WRITE (но не OP_ACCEPT).*/
+                        if ((keyRW & interestOps) > 0) {
+                            /*Можно, конечно, было это и не делать, а закрывать _все_ зарегистрированные у селектора каналы
+                             *несмотря на то, что канал с OP_ACCEPT находится в try-w-r, т.е. по-любому будет закрыт.*/
+                            try {
+                                // todo сделать набор разных BrokeServer(с паузами и прекращеями работ в разных местах) для тестирования клиента
+                                selectionKey.channel().close();
+                                System.out.println("Канал закрыт. В методе close()");
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
+                        System.out.println("ключ обработан");
                     }
                 });
     }

@@ -2,7 +2,7 @@ channel.accept()
 channel.read(buffer)
 channel.write(buffer)
 генерируют java.nio.channels.ClosedByInterruptException, если тред был заинтерапчет _перед_ их вызывом
-даже несмотря на то, что каналы в нелокирующем режиме. (по-умолчанию, в блокирующем)
+даже несмотря на то, что каналы в неблокирующем режиме. (видимо потому, что по-умолчанию они в блокирующем)
 
     Если интератп произошел перед channel.accept();
         java.nio.channels.ClosedByInterruptException
@@ -22,6 +22,8 @@ channel.write(buffer)
 пока с другой стороны данные начнут читать.
 
 
+
+//todo только запись, только чтение + перепроверить написанно
 
 
 999 999 1999 999
@@ -128,4 +130,13 @@ channel.write(buffer)
                                      
                                      
                                      
-
+                                     
+    Exception in thread "Thread-1" java.nio.channels.CancelledKeyException
+        at sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)
+        at sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)
+        at nio_server.Server.lambda$close$1(Server.java:281)
+        at java.lang.Iterable.forEach(Iterable.java:75)
+        at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080)
+        at nio_server.Server.close(Server.java:278)
+        at nio_server.Server.run(Server.java:161)
+        at java.lang.Thread.run(Thread.java:748)

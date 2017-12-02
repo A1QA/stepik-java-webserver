@@ -53,9 +53,8 @@ public class Client {
                 System.out.println("---Подготовка к отправке... "+i);
                 Thread.sleep(CLIENT_PAUSE1);
                 try {
-                    //out.write("test 123 qwerty №" + i);
-                    //out.write("test 123 qwerty №\n" + i); // reader.readLine() ожидает \n
-                    out.write(new char[6553]);
+                    out.write("test 123 qwerty №" + i);
+                    out.write("\n"); // reader.readLine() ожидает \n
                     out.flush();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -111,7 +110,7 @@ public class Client {
                 Thread.sleep(CLIENT_PAUSE1);
                 out.println("test 123 qwerty №" + i);
                 System.out.println("---Сообщение отправлено...");
-                // PrintWriter, конечно, в данном случае неудобен из-за того, что не пробрасывает исключения?
+                // PrintWriter, конечно, в данном случае неудобен из-за того, что не пробрасывает исключения,
                 // когда серверный сокет закрылся, например.
                 if (out.checkError()) {
                     System.err.println("---Проблемы с OutputStream");
