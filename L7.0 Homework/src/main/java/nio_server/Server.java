@@ -44,7 +44,9 @@ public class Server implements Runnable {
     public  static final int CLIENT_PAUSE2      = 999;
 
     public  static final boolean CLIENT_PRINT_WRITER = false;
-    private static final boolean SERVER_CLOSE_SOCKET = true;
+    private static final boolean SERVER_CLOSES_CLIENT_SOCKETS = true;
+    private static final boolean RUN_CLIENT_IN_NEW_PROCESS = true;
+
 
     private static final int BUFFER_SIZE = 64;
 
@@ -52,37 +54,50 @@ public class Server implements Runnable {
 
         final int SERVER_PORT = 5050;
 
-
-        Thread client = new Thread(() -> {
-            try {
-                //sleep(1115);
-                System.out.println("=client1");
-                Client.main();
-                System.out.println("=client2");
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        //client.setDaemon(true);
-        client.start();// run client
+        runClient(RUN_CLIENT_IN_NEW_PROCESS);
 
         Thread server = new Thread(new Server(SERVER_PORT));
-        //server.setDaemon(true);
         server.start();
 
         Thread.sleep(SERVER_LIFE_TIME);
-        System.out.println("=Прерывание работы сервера");
+        System.out.println("=Прерывание работы сервера...");
         server.interrupt();
-        //client.join();
-//        Thread.sleep(4444);
-//        client.interrupt();
-        System.out.println("=end of main");
+        System.out.println("=Запрос на прерывание работы сервера отправлен.");
     }
 
     private final int port;
 
     public Server(int port) {
         this.port = port;
+    }
+
+
+    private static void runClient(boolean inNewProcess) {
+
+        Thread client = new Thread(() -> {
+            Server.sleep(5);
+            if (!inNewProcess) {
+                try {
+                    System.out.println("=Запуск клиента");
+                    Client.main();
+                    System.out.println("=Клиент завершил работу");
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                ProcessTest process = new ProcessTest(ProcessTest.START_CLIENT);
+                try {
+                    System.out.println("=Запуск клиента в новом процессе");
+                    process.runProcess();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Server.sleep(15000);
+                process.destroy();
+                System.out.println("=Клиент завершил работу");
+            }
+        });
+        client.start();
     }
 
 
@@ -106,6 +121,7 @@ public class Server implements Runnable {
      *
      * todo переслать уже полученные данные при интерапте
      * todo parse data для закрытия сокета
+     * todo сделать набор разных BrokeServer(с паузами и прекращеями работ в разных местах) для тестирования клиента
      *
      * */
     @Override
@@ -141,24 +157,19 @@ public class Server implements Runnable {
                             } else if (key.isWritable()) {
                                 onWrite(key);
                             } else {
-                                System.out.println("Это. Не. Можыд. Быт.");
+                                System.err.println("Это. Не. Можыд. Быт."); // OP_CONNECT не использовался
                             }
                         } else {
-                            System.out.println("Невалидный SelectionKey");
-                              /*Прерывание работы сервера
-                                Нет готовых каналов
-                                Поток прерыван во время sleep(333)
-                                Канал закрыт.
-                                Работа сервера завершена*/
+                            System.err.println("Невалидный SelectionKey"); // TODO: При какой ситуации?
                         }
                     }
                 } else { // если интерапт на блокирующем selector.select();
                     System.out.println("Нет готовых каналов");
                 }
                 sleep(SERVER_PAUSE_AFTER); // для экспериментов можно поставить паузу
-
             }
-            if (SERVER_CLOSE_SOCKET) {
+
+            if (SERVER_CLOSES_CLIENT_SOCKETS) {
                 close(selector);
             }
 
@@ -183,11 +194,6 @@ public class Server implements Runnable {
         }
     }
 
-    // todo циклик onWrite и onRead. хотя, надо и ограничение оставить, иначе может долго читать один канал и т.д.
-    // хотя тогда проще буффер увеличить же
-
-
-
     @SuppressWarnings("unchecked")
     private void onRead(SelectionKey key) {
         try {
@@ -195,7 +201,6 @@ public class Server implements Runnable {
             System.out.println("Чтение...");
 
             SelectionKey selectionKey = channel.keyFor(key.selector());
-            System.out.println("___"+selectionKey.isValid());
             Deque<ByteBuffer> buffers = (Deque<ByteBuffer>) selectionKey.attachment();
 
             if (isNull(buffers)) {
@@ -243,7 +248,6 @@ public class Server implements Runnable {
 
             SelectionKey selectionKey = channel.keyFor(key.selector());
             Deque<ByteBuffer> buffers = (Deque<ByteBuffer>) selectionKey.attachment();
-            System.out.println("___"+selectionKey.isValid());
 
             if (isNull(buffers)) {
                 System.out.println("Список буфферов не создан");
@@ -279,29 +283,28 @@ public class Server implements Runnable {
     }
 
     private void close(Selector selector) {
-        System.out.println(selector.keys().size());
+        //System.out.println(selector.keys().size());
         selector.keys()
                 .forEach((SelectionKey selectionKey) -> {
-                    System.out.println(selectionKey.isValid());
-                    if (selectionKey.isValid()) {  /* Иначе может быть, что .interestOps() -> java.nio.channels.CancelledKeyException,
-                                                       если ключ быз cancel() при close() его канала, но еще не удален из селектора,
-                                                       т.к. не был вызван метод select(). */
+                    //System.out.println(selectionKey.isValid());
+                    if (selectionKey.isValid()) {  /* Иначе может быть, что selectionKey.interestOps() -> java.nio.channels.CancelledKeyException,
+                                                    *  если ключ был автоматически cancel() при close() его канала, но еще не удален из селектора,
+                                                    *  т.к. не был вызван метод select(). */
                         int interestOps = selectionKey.interestOps();
-                        int keyRW = SelectionKey.OP_READ | SelectionKey.OP_WRITE; // битовое сложение
+                        int keyRW = SelectionKey.OP_READ | SelectionKey.OP_WRITE; // Битовое сложение
 
                         /*Если ключ заинтересован только в операциях OP_READ и/или OP_WRITE (но не OP_ACCEPT).*/
                         if ((keyRW & interestOps) > 0) {
-                            /*Можно, конечно, было это и не делать, а закрывать _все_ зарегистрированные у селектора каналы
-                             *несмотря на то, что канал с OP_ACCEPT находится в try-w-r, т.е. по-любому будет закрыт.*/
+                            /* Можно, конечно, было это и не делать, а закрывать _все_ зарегистрированные у селектора каналы
+                             * несмотря на то, что канал с OP_ACCEPT находится в try-w-r, т.е. по-любому будет закрыт.*/
                             try {
-                                // todo сделать набор разных BrokeServer(с паузами и прекращеями работ в разных местах) для тестирования клиента
                                 selectionKey.channel().close();
                                 System.out.println("Канал закрыт. В методе close()");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        System.out.println("ключ обработан");
+                        System.out.println("Ключ обработан");
                     }
                 });
     }
@@ -311,16 +314,18 @@ public class Server implements Runnable {
      * {@link nio_server.Server#close(Selector selector)}
      */
     private void closeSimple(Selector selector) {
-        selector.keys().forEach(selectionKeys -> {
+        selector.keys().forEach(selectionKey -> {
             try {
-                selectionKeys.channel().close();
+                if (selectionKey.isValid()) {
+                    selectionKey.channel().close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    private static void sleep(int millis) {
+    public static void sleep(int millis) {
         if (millis > 0) { // а то интерапт эксепшены даже при 0 могут быть
             try {
                 Thread.sleep(millis);

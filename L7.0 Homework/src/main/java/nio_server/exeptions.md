@@ -1,30 +1,38 @@
-channel.accept()
-channel.read(buffer)
-channel.write(buffer)
-генерируют java.nio.channels.ClosedByInterruptException, если тред был заинтерапчет _перед_ их вызывом
-даже несмотря на то, что каналы в неблокирующем режиме. (видимо потому, что по-умолчанию они в блокирующем)
 
-    Если интератп произошел перед channel.accept();
-        java.nio.channels.ClosedByInterruptException
-            at java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202)
-            at sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:257)
-            at nio_server.Server.onAccept(Server.java:171)
-            at nio_server.Server.run(Server.java:134)
-            at java.lang.Thread.run(Thread.java:748)
+________________________________________________________________________________________________________________________
+
+- `channel.accept()`
+- `channel.read(buffer)`
+- `channel.write(buffer)`
+Генерируют `java.nio.channels.ClosedByInterruptException`, если тред был заинтерапчет _перед_ их вызывом
+даже несмотря на то, что каналы в неблокирующем режиме. (Видимо потому, что по-умолчанию они в блокирующем режиме.)
+
+Если интератп произошел перед `channel.accept()`:
+```
+    java.nio.channels.ClosedByInterruptException
+        at java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:202)
+        at sun.nio.ch.ServerSocketChannelImpl.accept(ServerSocketChannelImpl.java:257)
+        at nio_server.Server.onAccept(Server.java:171)
+        at nio_server.Server.run(Server.java:134)
+        at java.lang.Thread.run(Thread.java:748)
+```
+________________________________________________________________________________________________________________________
 
 
-
-Если сервер завершил работу, оставив сокеты открытыми (не вызвав метод close(Selector selector)), 
+Если сервер завершил работу, оставив сокеты открытыми (не вызвав метод `close(Selector selector)`), 
 эти сокеты останутся открытыми, пока не завершится процесс, в котором был запущен сервер.
 В таком случае клиент "зависнет" в ожидании данных, если он читает из сокета. Если же он пишет в сокет, 
 то зависнет, после того, как запишет в сокет определенное количество данных. 
-Например, при вызове Writer.write(new char[65536*10+1]) программа (клиент) зависнет, ожидая, 
+Например, при вызове `Writer.write(new char[65536*10+1])` программа (клиент) зависнет, ожидая, 
 пока с другой стороны данные начнут читать.
 
+________________________________________________________________________________________________________________________
 
-
+```java
 //todo только запись, только чтение + перепроверить написанно
+```
 
+________________________________________________________________________________________________________________________
 
 999 999 1999 999
 1. Клиент подсоединился к серверу
@@ -73,6 +81,18 @@ channel.write(buffer)
  
  
  
+________________________________________________________________________________________________________________________
+ 
+- если сокет не был закрыт сервером (но процесс, в котором был запущен сервер, завершен)
+  - (read):  SocketException: Connection reset
+  - (write): SocketException: Connection reset by peer: socket write error
+- если сокет был закрыт сервером (методом close(selector))
+  - (read):  SocketException: Software caused connection abort: recv failed
+  - (write): SocketException: Software caused connection abort: socket write error.
+
+________________________________________________________________________________________________________________________
+ 
+```
  java.net.SocketException: Software caused connection abort: socket write error
  	at java.net.SocketOutputStream.socketWrite0(Native Method)
  	at java.net.SocketOutputStream.socketWrite(SocketOutputStream.java:111)
@@ -86,6 +106,7 @@ channel.write(buffer)
  	at nio_server.Client.main(Client.java:28)
  	at nio_server.Server.lambda$main$0(Server.java:53)
  	at java.lang.Thread.run(Thread.java:748)
+ 	
  java.net.SocketException: Software caused connection abort: recv failed
  	at java.net.SocketInputStream.socketRead0(Native Method)
  	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)
@@ -103,40 +124,38 @@ channel.write(buffer)
  	at nio_server.Server.lambda$main$0(Server.java:53)
  	at java.lang.Thread.run(Thread.java:748)
 
+Exception in thread "Thread-1" java.nio.channels.CancelledKeyException
+    at sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)
+    at sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)
+    at nio_server.Server.lambda$close$1(Server.java:281)
+    at java.lang.Iterable.forEach(Iterable.java:75)
+    at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080)
+    at nio_server.Server.close(Server.java:278)
+    at nio_server.Server.run(Server.java:161)
+    at java.lang.Thread.run(Thread.java:748)
+```
 
+________________________________________________________________________________________________________________________
 
 // старый комментарий, возможны ошибки:
 
-                            /*Если работа сервера прекращена при активных соединениях, то
-                             *     если со стороны сервера сокет (не) закрыть, у клиента будет:
-                             * - Если не закрыть*: SocketException: Connection reset
-                             * - Если закрыть**:   SocketException: Software caused connection abort: recv failed
-                             *                                         (Исключения из метода BufferedReader.readLine())
-                             *   *вручную, насильно, завершил работу программы, например, из ОС убить процесс
-                             *   **т.е. interrupt() и вызов метода close(Selector selector), где сокет и закроется
-                             *
-                             * Если же interrupt() прервал поток, когда он спал (sleep(SERVER_PAUSE_AFTER)),
-                             * а не ожидал на selector.select(), у клиента метод readLine()
-                             * увидит "end of the stream" и будет возвращать null без генерации исключения.
-                             *
-                             */
+    /*Если работа сервера прекращена при активных соединениях, то
+     *     если со стороны сервера сокет (не) закрыть, у клиента будет:
+     * - Если не закрыть*: SocketException: Connection reset
+     * - Если закрыть**:   SocketException: Software caused connection abort: recv failed
+     *                                         (Исключения из метода BufferedReader.readLine())
+     *   *вручную, насильно, завершил работу программы, например, из ОС убить процесс
+     *   **т.е. interrupt() и вызов метода close(Selector selector), где сокет и закроется
+     *
+     * Если же interrupt() прервал поток, когда он спал (sleep(SERVER_PAUSE_AFTER)),
+     * а не ожидал на selector.select(), у клиента метод readLine()
+     * увидит "end of the stream" и будет возвращать null без генерации исключения.
+     *
+     */
                              
-                                 - если сокет не был закрыт сервером
-                                     - SocketException: Connection reset
-                                     - SocketException: Connection reset by peer: socket write error
-                                 - если сокет был закрыт сервером (методом close(selector))
-                                     - SocketException: Software caused connection abort: recv failed
-                                     - SocketException: Software caused connection abort: socket write error.
+
                                      
+
+
+
                                      
-                                     
-                                     
-    Exception in thread "Thread-1" java.nio.channels.CancelledKeyException
-        at sun.nio.ch.SelectionKeyImpl.ensureValid(SelectionKeyImpl.java:73)
-        at sun.nio.ch.SelectionKeyImpl.interestOps(SelectionKeyImpl.java:77)
-        at nio_server.Server.lambda$close$1(Server.java:281)
-        at java.lang.Iterable.forEach(Iterable.java:75)
-        at java.util.Collections$UnmodifiableCollection.forEach(Collections.java:1080)
-        at nio_server.Server.close(Server.java:278)
-        at nio_server.Server.run(Server.java:161)
-        at java.lang.Thread.run(Thread.java:748)
