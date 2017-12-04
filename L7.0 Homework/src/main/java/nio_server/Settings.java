@@ -20,7 +20,7 @@ public final class Settings {
 
     public static final boolean CLIENT_PRINT_WRITER = false;
     public static final boolean SERVER_CLOSES_CLIENT_SOCKETS = true;
-    public static final boolean RUN_CLIENT_IN_NEW_PROCESS = false;
+    public static final boolean RUN_CLIENT_IN_NEW_PROCESS = true;
 
     public static final int CLIENT_ITERATION = 3;
     public static final int BUFFER_SIZE = 12;

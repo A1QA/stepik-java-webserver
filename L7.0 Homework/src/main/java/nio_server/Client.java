@@ -29,6 +29,8 @@ public class Client {
             }
         }
     }
+
+    // todo выделить отдельные методы чтения и записи
     // todo сделать каждый метод реализацией класса, которую использует клиент
     // todo собирать обработчики из списка _команд_
 
@@ -38,7 +40,8 @@ public class Client {
         try (Writer out = new OutputStreamWriter(socket.getOutputStream());
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            System.out.println("---Соединение установлено\n");
+            System.out.println("---Соединение установлено");
+            System.out.println();
 
             for (int i = 0; i < CLIENT_ITERATION; i++) {
 
@@ -58,25 +61,30 @@ public class Client {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                System.out.print("---Сообщение отправлено... "+i+"\n");
+                System.out.println("---Сообщение отправлено... "+i);
 
                 Thread.sleep(350);
                 try {
-                    System.err.println("---Чтение: ");
+                    System.out.println("---Чтение: ");
 //                  System.out.println("---" + reader.readLine()); // Простой способ читать _строку_
 
                     // либо так:
-                    System.err.print("---:");
+                    System.out.print("---:");
                     int ch = reader.read();
                     while (ch != -1) {
-                        System.err.print((char)ch);
+                        System.out.print((char)ch);
+
+                        if (ch == '\r'){
+                            System.err.println("\\r");
+                        }
+
                         if (ch == '\n') {
                             break;
                         }
                         ch = reader.read();
                     }
 
-                    System.err.println("---Прочитано");
+                    System.out.println("---Прочитано");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
