@@ -11,8 +11,15 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.isNull;
+import static nio_server.Settings.BUFFER_SIZE;
+import static nio_server.Settings.RUN_CLIENT_IN_NEW_PROCESS;
+import static nio_server.Settings.SERVER_CLOSES_CLIENT_SOCKETS;
+import static nio_server.Settings.SERVER_LIFE_TIME;
+import static nio_server.Settings.SERVER_PAUSE_AFTER;
+import static nio_server.Settings.SERVER_PORT;
 
 
 /**
@@ -25,41 +32,18 @@ import static java.util.Objects.isNull;
 
 public class Server implements Runnable {
 
-    /*
-    999 2299 0 999
-    Сервер прочел половину.
-
-
-     999 999 1999 999
-     сразу же закрыл
-
-
-     */
     //todo регить n-й коннект у другого селектора в другом треде
 
 
-    private static final int SERVER_PAUSE_AFTER = 999;
-    private static final int SERVER_LIFE_TIME   = 12299;
-    public  static final int CLIENT_PAUSE1      = 0;
-    public  static final int CLIENT_PAUSE2      = 999;
 
-    public  static final boolean CLIENT_PRINT_WRITER = false;
-    private static final boolean SERVER_CLOSES_CLIENT_SOCKETS = true;
-    private static final boolean RUN_CLIENT_IN_NEW_PROCESS = true;
-
-
-    private static final int BUFFER_SIZE = 64;
-
-    public static void main(String... args) throws InterruptedException {
-
-        final int SERVER_PORT = 5050;
+    public static void main(String... args) {
 
         runClient(RUN_CLIENT_IN_NEW_PROCESS);
 
         Thread server = new Thread(new Server(SERVER_PORT));
         server.start();
 
-        Thread.sleep(SERVER_LIFE_TIME);
+        Sleeper.sleep(SERVER_LIFE_TIME);
         System.out.println("=Прерывание работы сервера...");
         server.interrupt();
         System.out.println("=Запрос на прерывание работы сервера отправлен.");
@@ -72,10 +56,15 @@ public class Server implements Runnable {
     }
 
 
+    /**
+     * Запуск клиента в отдельном потоке
+     *
+     * @param inNewProcess есди true, запускает в отдельном процессе.
+     */
     private static void runClient(boolean inNewProcess) {
 
         Thread client = new Thread(() -> {
-            Server.sleep(5);
+            Sleeper.sleep(5);
             if (!inNewProcess) {
                 try {
                     System.out.println("=Запуск клиента");
@@ -85,16 +74,21 @@ public class Server implements Runnable {
                     e.printStackTrace();
                 }
             } else {
-                ProcessTest process = new ProcessTest(ProcessTest.START_CLIENT);
+                JavaProcessRunner process = new JavaProcessRunner(JavaProcessRunner.getProcessCommand(JavaProcessRunner.CLASS_PATH, JavaProcessRunner.CLASS));
                 try {
                     System.out.println("=Запуск клиента в новом процессе");
                     process.runProcess();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                Server.sleep(15000);
+                //Sleeper.sleep(20000);
+                try {
+                    process.waitFor(20, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 process.destroy();
-                System.out.println("=Клиент завершил работу");
+                System.out.println("=Процесс клиента завершен");
             }
         });
         client.start();
@@ -166,7 +160,7 @@ public class Server implements Runnable {
                 } else { // если интерапт на блокирующем selector.select();
                     System.out.println("Нет готовых каналов");
                 }
-                sleep(SERVER_PAUSE_AFTER); // для экспериментов можно поставить паузу
+                Sleeper.sleep(SERVER_PAUSE_AFTER); // для экспериментов можно поставить паузу
             }
 
             if (SERVER_CLOSES_CLIENT_SOCKETS) {
@@ -325,15 +319,4 @@ public class Server implements Runnable {
         });
     }
 
-    public static void sleep(int millis) {
-        if (millis > 0) { // а то интерапт эксепшены даже при 0 могут быть
-            try {
-                Thread.sleep(millis);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Поток прерыван во время sleep(" + millis + ")");
-//          e.printStackTrace();
-            }
-        }
-    }
 }
