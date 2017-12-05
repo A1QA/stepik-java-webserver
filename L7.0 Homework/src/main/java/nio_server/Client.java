@@ -18,6 +18,9 @@ import static nio_server.Settings.CLIENT_MESSAGE;
 
 
 public class Client {
+
+    private static final String PREFIX = "Client: ";
+
     public static void main(String... args) throws IOException, InterruptedException {
         try (Socket socket = new Socket("localhost", 5050)) {
 
@@ -40,18 +43,18 @@ public class Client {
         try (Writer out = new OutputStreamWriter(socket.getOutputStream());
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            System.out.println("---Соединение установлено");
+            System.out.println(PREFIX + "Соединение установлено");
             System.out.println();
 
             for (int i = 0; i < CLIENT_ITERATION; i++) {
 
 /*                try {
-                    System.out.println("---Чтение: " + reader.readLine());
+                    System.out.println(PREFIX + "Чтение: " + reader.readLine());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }*/
 
-                System.out.println("---Подготовка к отправке... "+i);
+                System.out.println(PREFIX + "Подготовка к отправке... "+i);
                 Thread.sleep(CLIENT_PAUSE_BEFORE_ITERATION);
 
                 try {
@@ -61,15 +64,15 @@ public class Client {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                System.out.println("---Сообщение отправлено... "+i);
+                System.out.println(PREFIX + "Сообщение отправлено... "+i);
 
                 Thread.sleep(350);
                 try {
-                    System.out.println("---Чтение: ");
-//                  System.out.println("---" + reader.readLine()); // Простой способ читать _строку_
+                    System.out.println(PREFIX + "Чтение: ");
+//                  System.out.println(PREFIX + reader.readLine()); // Простой способ читать _строку_
 
                     // либо так:
-                    System.out.print("---:");
+                    System.out.print(PREFIX);
                     int ch = reader.read();
                     while (ch != -1) {
                         System.out.print((char)ch);
@@ -84,7 +87,7 @@ public class Client {
                         ch = reader.read();
                     }
 
-                    System.out.println("---Прочитано");
+                    System.out.println(PREFIX + "Прочитано");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -100,17 +103,17 @@ public class Client {
         try (BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            System.out.println("---Соединение установлено\n");
+            System.out.println(PREFIX + "Соединение установлено\n");
 
             for (int i = 0; i < CLIENT_ITERATION; i++) {
 
-                System.out.println("---Подготовка к отправке...");
+                System.out.println(PREFIX + "Подготовка к отправке...");
                 out.write(CLIENT_MESSAGE + "\n" + i); // reader.readLine() ожидает \n
                 out.flush();
-                System.out.println("---Сообщение отправлено...");
+                System.out.println(PREFIX + "Сообщение отправлено...");
 
                 //Thread.sleep(333);
-                System.out.println("---Получено: " + reader.readLine());
+                System.out.println(PREFIX + "Получено: " + reader.readLine());
                 Thread.sleep(CLIENT_PAUSE_AFTER_ITERATION);
             }
 
@@ -127,19 +130,19 @@ public class Client {
         try (PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            System.out.println("---Соединение установлено\n");
+            System.out.println(PREFIX + "Соединение установлено\n");
 
             for (int i = 0; i < CLIENT_ITERATION; i++) {
                 Thread.sleep(CLIENT_PAUSE_BEFORE_ITERATION);
 
-                out.println("test 123 qwerty №" + i);
-                System.out.println("---Сообщение отправлено...");
+                out.println(CLIENT_MESSAGE + i);
+                System.out.println(PREFIX + "Сообщение отправлено...");
                 if (out.checkError()) {
-                    System.err.println("---Проблемы с OutputStream");
+                    System.err.println(PREFIX + "Проблемы с OutputStream");
                 }
 
                 try {
-                    System.out.println("---Получено: " + reader.readLine());
+                    System.out.println(PREFIX + "Получено: " + reader.readLine());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

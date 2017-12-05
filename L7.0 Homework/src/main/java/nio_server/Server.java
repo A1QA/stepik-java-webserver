@@ -11,15 +11,11 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.isNull;
 import static nio_server.Settings.BUFFER_SIZE;
-import static nio_server.Settings.RUN_CLIENT_IN_NEW_PROCESS;
 import static nio_server.Settings.SERVER_CLOSES_CLIENT_SOCKETS;
-import static nio_server.Settings.SERVER_LIFE_TIME;
 import static nio_server.Settings.SERVER_PAUSE_AFTER;
-import static nio_server.Settings.SERVER_PORT;
 
 
 /**
@@ -34,25 +30,14 @@ public class Server implements Runnable {
 
     //todo регить n-й коннект у другого селектора в другом треде
 
-    //gc при клиенте зависшем в отдельно потоке
+    //todo
     //сравнить селекшенкей и кей, елс и иф елс тоже
     //какие возвращает ключи в джава доке
     //проверить количество акссеболов
     //у ключа
 
-    public static void main(String... args) {
 
-        runClient(RUN_CLIENT_IN_NEW_PROCESS);
-
-        Thread server = new Thread(new Server(SERVER_PORT));
-        server.start();
-
-        Sleeper.sleep(SERVER_LIFE_TIME);
-        System.out.println("=Прерывание работы сервера...");
-        server.interrupt();
-        System.out.println("=Запрос на прерывание работы сервера отправлен.");
-    }
-
+    private static final String PREFIX = "Server: ";
     private final int port;
 
     public Server(int port) {
@@ -60,43 +45,7 @@ public class Server implements Runnable {
     }
 
 
-    /**
-     * Запуск клиента в отдельном потоке
-     *
-     * @param inNewProcess есди true, запускает в отдельном процессе.
-     */
-    private static void runClient(boolean inNewProcess) {
 
-        Thread client = new Thread(() -> {
-            Sleeper.sleep(5);
-            if (!inNewProcess) {
-                try {
-                    System.out.println("=Запуск клиента");
-                    Client.main();
-                    System.out.println("=Клиент завершил работу");
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                JavaProcessRunner process = new JavaProcessRunner(JavaProcessRunner.getProcessCommand(JavaProcessRunner.CLASS_PATH, JavaProcessRunner.CLASS));
-                try {
-                    System.out.println("=Запуск клиента в новом процессе");
-                    process.runProcess();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                //Sleeper.sleep(20000);
-                try {
-                    process.waitFor(20, TimeUnit.SECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                process.destroy();
-                System.out.println("=Процесс клиента завершен");
-            }
-        });
-        client.start();
-    }
 
 
     /**
@@ -124,7 +73,6 @@ public class Server implements Runnable {
      * */
     @Override
     public void run() {
-        System.out.println("Server started");
 
         try (ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();
              Selector selector = Selector.open()) {
@@ -134,7 +82,7 @@ public class Server implements Runnable {
             serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
 
 
-            System.out.println("Ожидание соединения..."); // первый вызов selector.select() todo надпись при блокирующем ожидании соединения
+            System.out.println(PREFIX + "Ожидание соединения..."); // первый вызов selector.select() todo надпись при блокирующем ожидании соединения
 
             while (!Thread.currentThread().isInterrupted()) {   // для остановки: Thread.currentThread().interrupt();
 
@@ -155,16 +103,16 @@ public class Server implements Runnable {
                             } else if (key.isWritable()) {
                                 onWrite(key);
                             } else {
-                                System.err.println("Это. Не. Можыд. Быт."); // OP_CONNECT не использовался
+                                System.err.println(PREFIX + "Это. Не. Можыд. Быт."); // OP_CONNECT не использовался
                             }
                         } else {
-                            System.err.println("Невалидный SelectionKey"); // TODO: При какой ситуации?
+                            System.err.println(PREFIX + "Невалидный SelectionKey"); // TODO: При какой ситуации?
                         }
                     }
                 } else { // если интерапт на блокирующем selector.select();
-                    System.out.println("Нет готовых каналов");
+                    System.out.println(PREFIX + "Нет готовых каналов");
                 }
-                Sleeper.sleep(SERVER_PAUSE_AFTER); // для экспериментов можно поставить паузу
+                Sleeper.sleep(SERVER_PAUSE_AFTER, PREFIX); // для экспериментов можно поставить паузу
             }
 
             if (SERVER_CLOSES_CLIENT_SOCKETS) {
@@ -174,20 +122,20 @@ public class Server implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("!Работа сервера завершена");
+        System.out.println(PREFIX + "Работа сервера завершена");
     }
 
     private void onAccept(SelectionKey key) {
         try {
             ServerSocketChannel channel = (ServerSocketChannel) key.channel();
-            System.out.println("Установка соединения...");
+            System.out.println(PREFIX + "Установка соединения...");
             SocketChannel socketChannel = channel.accept();
             socketChannel.configureBlocking(false);
             socketChannel.register(key.selector(), SelectionKey.OP_READ);
 
-            System.out.println("Установлено соединение с " + socketChannel.getRemoteAddress());
+            System.out.println(PREFIX + "Установлено соединение с " + socketChannel.getRemoteAddress());
         } catch (IOException e) {
-            System.err.println("onAccept()");
+            System.err.println(PREFIX + "onAccept()");
             e.printStackTrace();
         }
     }
@@ -196,32 +144,32 @@ public class Server implements Runnable {
     private void onRead(SelectionKey key) {
         try {
             SocketChannel channel = (SocketChannel) key.channel();
-            System.out.println("Чтение...");
+            System.out.println(PREFIX + "Чтение...");
 
             SelectionKey selectionKey = channel.keyFor(key.selector());
             Deque<ByteBuffer> buffers = (Deque<ByteBuffer>) selectionKey.attachment();
 
             if (isNull(buffers)) {
                 buffers = new LinkedList<>();
-                System.out.println("Список буфферов создан");
+                System.out.println(PREFIX + "Список буфферов создан");
                 selectionKey.attach(buffers);
             }
 //      if (!buffers.isEmpty() &&) // todo частично заполненный буффер вытаскивать
 
             ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-            System.out.println("Чтение в буффер");
+            System.out.println(PREFIX + "Чтение в буффер");
             int bytesRead = channel.read(buffer);
-            System.out.println("Чтение в буффер завершено");
+            System.out.println(PREFIX + "Чтение в буффер завершено");
             if (bytesRead == -1) { // когда клиент сам закрыл сокет методом close()
-                System.out.println("Завершение соединения с " + channel.getRemoteAddress() + " в onRead");
+                System.out.println(PREFIX + "Завершение соединения с " + channel.getRemoteAddress() + " в onRead");
                 channel.close();   // + происходит удаление регистрации у селектора
                 // + SelectionKey становится невалидным (isValid()), и если на нем вызвать, например, метод interestOps(),
                 // то CancelledKeyException. "Заверншенный" SelectionKey удаляется при вызове selector.select()
             } else if (bytesRead > 0) {
                 buffers.addLast(buffer);
                 //System.out.println("Буффер добавлен");
-                System.out.println("Прочитано " + bytesRead + " байт");
+                System.out.println(PREFIX + "Прочитано " + bytesRead + " байт");
                 key.interestOps(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
             }
 //      if (buffer.position() == BUFFER_SIZE) {
@@ -231,7 +179,7 @@ public class Server implements Runnable {
             e.printStackTrace();
             try {
                 key.channel().close();
-                System.out.println("Канал закрыт в методе onRead()");
+                System.out.println(PREFIX + "Канал закрыт в методе onRead()");
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -242,13 +190,13 @@ public class Server implements Runnable {
     private void onWrite(SelectionKey key) {
         try {
             SocketChannel channel = (SocketChannel) key.channel();
-            System.out.println("Запись...");
+            System.out.println(PREFIX + "Запись...");
 
             SelectionKey selectionKey = channel.keyFor(key.selector());
             Deque<ByteBuffer> buffers = (Deque<ByteBuffer>) selectionKey.attachment();
 
             if (isNull(buffers)) {
-                System.out.println("Список буфферов не создан");
+                System.out.println(PREFIX + "Список буфферов не создан");
                 return;
             }
             if (!buffers.isEmpty()) {
@@ -256,16 +204,16 @@ public class Server implements Runnable {
 
                 buffer.flip();
                 int bytesWritten = channel.write(buffer);
-                System.out.println("Записано " + bytesWritten + " байт");
+                System.out.println(PREFIX + "Записано " + bytesWritten + " байт");
                 buffer.compact();
 
                 if (buffer.position() != 0) {
                     buffers.addFirst(buffer);
-                    System.out.println("Буффер вернулся назаж");
+                    System.out.println(PREFIX + "Буффер вернулся назаж");
                 }
             }
             if (buffers.isEmpty()) {
-                System.out.println("Список буфферов пуст");
+                System.out.println(PREFIX + "Список буфферов пуст");
                 key.interestOps(SelectionKey.OP_READ);
             }
 
@@ -273,7 +221,7 @@ public class Server implements Runnable {
             e.printStackTrace();
             try {
                 key.channel().close();
-                System.out.println("Канал закрыт в методе onWrite()");
+                System.out.println(PREFIX + "Канал закрыт в методе onWrite()");
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -297,12 +245,12 @@ public class Server implements Runnable {
                              * несмотря на то, что канал с OP_ACCEPT находится в try-w-r, т.е. по-любому будет закрыт.*/
                             try {
                                 selectionKey.channel().close();
-                                System.out.println("Канал закрыт. В методе close()");
+                                System.out.println(PREFIX + "Канал закрыт. В методе close()");
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        System.out.println("Ключ обработан");
+                        System.out.println(PREFIX + "Ключ обработан");
                     }
                 });
     }

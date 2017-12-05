@@ -133,11 +133,12 @@ public class JavaProcessRunner {
                 ch = br.read();
             }
             System.out.println();
-            System.out.println("Количество символов (" + type + "): " + list.size());
+            System.out.println("OUTPUT > Количество символов (" + type + "): " + list.size());
             list.forEach(System.out::print);
-            System.out.println(list.stream()
-                    .filter(character -> character == '\r')
-                    .count());
+            System.out.println("OUTPUT > Количество символов \\r (" + type + "): " +
+                    list.stream()
+                            .filter(character -> character == '\r' )
+                            .count());
         }
 
         private void consoleOut4(BufferedReader br) throws IOException {
@@ -157,7 +158,7 @@ public class JavaProcessRunner {
                 }
             }
             System.out.println();
-            System.out.println("Количество символов (" + type + ") без учета \\r, \\n: " + list.size());
+            System.out.println("OUTPUT > Количество символов (" + type + ") без учета \\r, \\n: " + list.size());
             list.forEach(System.out::print);
         }
     }
