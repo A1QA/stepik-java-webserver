@@ -41,7 +41,7 @@ public class Runner {
                     System.out.println(PREFIX + "Запуск клиента");
                     Client.main();
                     System.out.println(PREFIX + "Клиент завершил работу");
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {

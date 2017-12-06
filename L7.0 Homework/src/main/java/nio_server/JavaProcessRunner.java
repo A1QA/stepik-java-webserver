@@ -83,7 +83,11 @@ public class JavaProcessRunner {
                 InputStreamReader isr = new InputStreamReader(is, JavaProcessRunner.this.charset);
                 BufferedReader br = new BufferedReader(isr);
 
-                consoleOut4(br);
+                consoleOut2(br);
+                // 1 посимвольный режим
+                // 2 построчный режим
+                // 3 посимвольный режим + стата
+                // 4 построчный режим + стата
 
             } catch (IOException ex){
                 ex.printStackTrace();
@@ -91,6 +95,9 @@ public class JavaProcessRunner {
         }
 
         private void consoleOut1(BufferedReader br) throws IOException {
+
+            System.out.println(type + " > " + "(вывод в посимвольном режиме)");
+
             int ch = br.read();
             while (ch != -1) {
                 if ("ERROR".equals(type.toUpperCase())){
@@ -104,6 +111,7 @@ public class JavaProcessRunner {
 
         private void consoleOut2(BufferedReader br) throws IOException {
             String line;
+            System.out.println(type + " > " + "(вывод в построчном режиме)");
 
             while ( (line = br.readLine()) != null) {
                 List<Character> collect = line.chars().mapToObj(value -> ((char) value))
@@ -119,6 +127,7 @@ public class JavaProcessRunner {
         private void consoleOut3(BufferedReader br) throws IOException {
 
             List<Character> list = new ArrayList<>(400);
+            System.out.println(type + " > " + "(вывод в посимвольном режиме)");
 
             int ch = br.read();
             while (ch != -1) {
@@ -144,6 +153,7 @@ public class JavaProcessRunner {
         private void consoleOut4(BufferedReader br) throws IOException {
             List<Character> list = new ArrayList<>(400);
             String line;
+            System.out.println(type + " > " + "(вывод в построчном режиме)");
 
             while ( (line = br.readLine()) != null) {
                 List<Character> collect = line.chars()

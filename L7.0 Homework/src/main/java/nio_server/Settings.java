@@ -17,8 +17,9 @@ public final class Settings {
     public static final int SERVER_LIFE_TIME   = 12299;
     public static final int CLIENT_PAUSE_BEFORE_ITERATION = 0;
     public static final int CLIENT_PAUSE_AFTER_ITERATION  = 999;
+    public static final int CLIENT_PAUSE_MIDDLE  = 350;
 
-    public static final boolean CLIENT_PRINT_WRITER = false;
+    //public static final boolean CLIENT_PRINT_WRITER = false;
     public static final boolean SERVER_CLOSES_CLIENT_SOCKETS = true;
     public static final boolean RUN_CLIENT_IN_NEW_PROCESS = true;
 
