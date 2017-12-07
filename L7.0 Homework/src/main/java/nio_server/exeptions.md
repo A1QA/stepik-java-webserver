@@ -102,8 +102,8 @@ ________________________________________________________________________________
  	at sun.nio.cs.StreamEncoder.implFlush(StreamEncoder.java:295)
  	at sun.nio.cs.StreamEncoder.flush(StreamEncoder.java:141)
  	at java.io.OutputStreamWriter.flush(OutputStreamWriter.java:229)
- 	at nio_server.Client.withWriter(Client.java:53)
- 	at nio_server.Client.main(Client.java:28)
+ 	at nio_server.runners.ClientStarter.withWriter(Client.java:53)
+ 	at nio_server.runners.ClientStarter.main(Client.java:28)
  	at nio_server.Server.lambda$main$0(Server.java:53)
  	at java.lang.Thread.run(Thread.java:748)
  	
@@ -119,8 +119,8 @@ ________________________________________________________________________________
  	at java.io.BufferedReader.fill(BufferedReader.java:161)
  	at java.io.BufferedReader.readLine(BufferedReader.java:324)
  	at java.io.BufferedReader.readLine(BufferedReader.java:389)
- 	at nio_server.Client.withWriter(Client.java:61)
- 	at nio_server.Client.main(Client.java:28)
+ 	at nio_server.runners.ClientStarter.withWriter(Client.java:61)
+ 	at nio_server.runners.ClientStarter.main(Client.java:28)
  	at nio_server.Server.lambda$main$0(Server.java:53)
  	at java.lang.Thread.run(Thread.java:748)
 
