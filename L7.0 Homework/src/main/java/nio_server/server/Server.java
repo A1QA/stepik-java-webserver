@@ -1,5 +1,6 @@
-package nio_server;
+package nio_server.server;
 
+import nio_server.Sleeper;
 import nio_server.context.GlobalContext;
 
 import java.io.IOException;
@@ -254,7 +255,7 @@ public class Server implements Runnable {
 
     /**
      * Либо просто вот так. (см. метод close(Selector selector) чуть выше)
-     * {@link nio_server.Server#close(Selector selector)}
+     * {@link Server#close(Selector selector)}
      */
     private void closeSimple(Selector selector) {
         selector.keys().forEach(selectionKey -> {

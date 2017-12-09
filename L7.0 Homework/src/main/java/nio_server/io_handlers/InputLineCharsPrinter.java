@@ -37,7 +37,7 @@ public class InputLineCharsPrinter implements InputStreamHandler {
                 ch = reader.read();
             }
             System.out.println();
-            System.err.println("End of the stream has been reached");
+            System.out.println("InputLineCharsPrinter: End of the stream has been reached");
         } catch (IOException e) {
             e.printStackTrace();
         }

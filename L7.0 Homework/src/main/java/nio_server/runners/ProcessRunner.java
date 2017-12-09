@@ -1,8 +1,8 @@
 package nio_server.runners;
 
 import nio_server.Sleeper;
-import nio_server.context.DefaultProcessContext;
 import nio_server.context.GlobalContext;
+import nio_server.context.SettingsProcessContext;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -14,7 +14,7 @@ public class ProcessRunner {
 
     public static void main(String... args) {
 
-        GlobalContext.getInstance().setProcessContext(DefaultProcessContext.getInstance());
+        GlobalContext.getInstance().setProcessContext(SettingsProcessContext.getInstance());
 
         new Thread(ProcessRunner::runServer).start();
         Sleeper.sleep(1); // на всякий случай, чтобы клиент первым не запустился

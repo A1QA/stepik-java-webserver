@@ -7,9 +7,9 @@ import nio_server.context.GlobalContext;
 import java.net.Socket;
 
 
-public class ReadHandler extends IOHandler {
+public class WriteReadSocketHandler extends IOSocketHandler {
 
-    public ReadHandler(Socket socket) {
+    public WriteReadSocketHandler(Socket socket) {
         super(socket);
     }
 
@@ -23,7 +23,17 @@ public class ReadHandler extends IOHandler {
 
         for (int i = 0; i < client.iterations(); i++) {
 
+            System.out.println(PREFIX + "Подготовка к отправке... " + i);
             Sleeper.sleep(client.pauseBeforeIteration());
+
+            getMessageOutputStreamHandler().setMessage(client.message() + i);
+            getMessageOutputStreamHandler().handle();
+
+            System.out.println(PREFIX + "Сообщение отправлено... " + i);
+
+
+            Sleeper.sleep(client.pauseInMiddleOfIteration());
+
 
             System.out.println(PREFIX + "Чтение: ");
             getInputStreamHandler().handle();

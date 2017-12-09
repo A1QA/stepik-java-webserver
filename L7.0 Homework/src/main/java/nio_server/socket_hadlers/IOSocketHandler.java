@@ -12,15 +12,15 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 
-public abstract class IOHandler implements SocketHandler {
+public abstract class IOSocketHandler implements SocketHandler {
 
     protected Socket socket;
 
-    public IOHandler(Socket socket) {
+    public IOSocketHandler(Socket socket) {
         this.socket = socket;
     }
 
-    protected static final String PREFIX = "IOHandler: ";
+    protected static final String PREFIX = "IOSocketHandler: ";
 
     private InputStreamHandler inputStreamHandler;
     private InputStreamHandlerCreator inputStreamHandlerCreator;

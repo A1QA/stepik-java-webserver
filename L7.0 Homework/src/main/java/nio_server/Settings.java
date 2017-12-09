@@ -10,32 +10,53 @@ package nio_server;
     */
 
 
-// TODO: this
+import nio_server.io_handlers.InputLineCharsPrinter;
+import nio_server.io_handlers.InputLinePrinter;
+import nio_server.io_handlers.InputStreamHandlerCreator;
+import nio_server.io_handlers.MessageBufferedWriter;
+import nio_server.io_handlers.MessageOutputStreamHandlerCreator;
+import nio_server.runners.printer.CharsPrinter;
+import nio_server.runners.printer.CharsWithInfoPrinter;
+import nio_server.runners.printer.ProcessInputPrinter;
+
+
 public final class Settings {
 
+    //------------------------------------------------------------------------------------------------------------------
     // Runner
     public static final boolean RUN_CLIENT_IN_NEW_PROCESS = true;
 
+    //------------------------------------------------------------------------------------------------------------------
+    // JavaProcessRunner
+    public static final ProcessInputPrinter PROCESS_INPUT_PRINTER = new CharsPrinter();
+    // LinePrinter, LineWithInfoPrinter, CharsPrinter, CharsWithInfoPrinter
+
+    //------------------------------------------------------------------------------------------------------------------
     // ServerStarter
-    public static final int SERVER_LIFE_TIME   = 5299;
-    public static final int SERVER_PORT = 5050;
+    public static final int SERVER_LIFE_TIME   = 15299; // Time ms
+    public static final int SERVER_PORT        = 5050;
 
     // Server
-    public static final int BUFFER_SIZE = 12;
-    public static final int SERVER_PAUSE_AFTER = 999;
+    public static final int BUFFER_SIZE        = 12;
+    public static final int SERVER_PAUSE_AFTER = 399; // Time ms
     public static final boolean SERVER_CLOSES_CLIENT_SOCKETS = true;
 
-    // IOHandler: WriteReadHandler, ReadHandler
-    public static final int CLIENT_PAUSE_BEFORE_ITERATION = 0;
-    public static final int CLIENT_PAUSE_AFTER_ITERATION  = 999;
-    public static final int CLIENT_PAUSE_MIDDLE  = 350;
-    public static final int CLIENT_ITERATION = 3;
 
-    // WriteReadHandler
+    //------------------------------------------------------------------------------------------------------------------
+    // IOSocketHandler: WriteReadSocketHandler, ReadSocketHandler
+    public static final int CLIENT_PAUSE_BEFORE_ITERATION = 0;    // Time ms
+    public static final int CLIENT_PAUSE_MIDDLE           = 350;  // Time ms
+    public static final int CLIENT_PAUSE_AFTER_ITERATION  = 999;  // Time ms
+    public static final int CLIENT_ITERATION              = 5;    // Time ms
+
+    // WriteReadSocketHandler
     public static final String CLIENT_MESSAGE = "TEST1234567890QWERTY№";
 
+    // ClientStarter: IOSocketHandler
+    public static final MessageOutputStreamHandlerCreator MESSAGE_OUTPUT_HANDLER_CREATOR = MessageBufferedWriter::new;
+    // MessageBufferedWriter, MessagePrintWriter, MessageCharsWriter
+    public static final InputStreamHandlerCreator INPUT_HANDLER_CREATOR = InputLinePrinter::new;
+    // InputLinePrinter, InputLineCharsPrinter
 
-    // JavaProcessRunner -<- ProcessInputPrinter
-    // ClientStarter -<- IOHandler -<- InputStreamHandlerCreator, MessageOutputStreamHandlerCreator
 
 }

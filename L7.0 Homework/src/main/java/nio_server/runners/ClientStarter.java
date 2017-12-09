@@ -1,9 +1,9 @@
 package nio_server.runners;
 
-import nio_server.context.DefaultClientContext;
 import nio_server.context.GlobalContext;
-import nio_server.socket_hadlers.IOHandler;
-import nio_server.socket_hadlers.WriteReadHandler;
+import nio_server.context.SettingsClientContext;
+import nio_server.socket_hadlers.IOSocketHandler;
+import nio_server.socket_hadlers.WriteReadSocketHandler;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -15,18 +15,18 @@ public class ClientStarter {
         try (Socket socket = new Socket("localhost", 5050)) {
 
             final GlobalContext context = GlobalContext.getInstance();
-            context.setClientContext(DefaultClientContext.getInstance());
+            context.setClientContext(SettingsClientContext.getInstance());
 
-            // какой обработчик
-            IOHandler ioHandler = new WriteReadHandler(socket);
+            // какой обработчик сокета
+            IOSocketHandler socketHandler = new WriteReadSocketHandler(socket);
 
             // как клиент пишет
-            ioHandler.setMessageOutputStreamHandlerCreator(context.getClientContext().messageWriterCreator()); // MessageCharsWriter::new
+            socketHandler.setMessageOutputStreamHandlerCreator(context.getClientContext().messageWriterCreator()); // MessageCharsWriter::new
             // как клиент читает
-            ioHandler.setInputStreamHandlerCreator(context.getClientContext().inputStreamCreator()); // InputLineCharsPrinter::new
+            socketHandler.setInputStreamHandlerCreator(context.getClientContext().inputStreamCreator()); // InputLineCharsPrinter::new
 
-            ioHandler.init();
-            ioHandler.handle();
+            socketHandler.init();
+            socketHandler.handle();
 
         } catch (IOException e) {
             e.printStackTrace();

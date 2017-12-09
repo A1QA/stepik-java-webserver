@@ -38,6 +38,6 @@ public class Main {
      * В принципе, для задания достаточно автоматического определения, когда клиент сам закрыл сокет.
      */
     private static void startNIOBasedEchoServer() {
-        new nio_server.Server(5050).run();
+        new nio_server.server.Server(5050).run();
     }
 }
