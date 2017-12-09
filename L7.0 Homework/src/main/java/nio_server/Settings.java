@@ -39,22 +39,3 @@ public final class Settings {
     // ClientStarter -<- IOHandler -<- InputStreamHandlerCreator, MessageOutputStreamHandlerCreator
 
 }
-
-
-
-
-//class DynamicSettings {
-//
-//    private int serverPauseAfter;
-//    private int serverLifeTime;
-//    private int clientPause1;
-//    private int clientPause2;
-//
-//    private boolean clientUsePrintWriter;
-//    private boolean serverClosesClientsSockets;
-//    private boolean runClientInNewProcess;
-//
-//    private int bufferSize;
-//    private int serverPort;
-//
-//}

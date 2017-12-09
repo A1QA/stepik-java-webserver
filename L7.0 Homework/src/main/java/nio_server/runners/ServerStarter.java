@@ -2,9 +2,9 @@ package nio_server.runners;
 
 import nio_server.Server;
 import nio_server.Sleeper;
+import nio_server.context.DefaultServerContext;
+import nio_server.context.GlobalContext;
 
-import static nio_server.Settings.SERVER_LIFE_TIME;
-import static nio_server.Settings.SERVER_PORT;
 
 public class ServerStarter {
 
@@ -12,11 +12,14 @@ public class ServerStarter {
 
     public static void main(String... args) {
 
-        Thread server = new Thread(new Server(SERVER_PORT));
+        final GlobalContext context = GlobalContext.getInstance();
+        context.setServerContext(DefaultServerContext.getInstance());
+
+        Thread server = new Thread(new Server(context.getServerContext().port()));
         server.start();
         System.out.println("Server started");
 
-        Sleeper.sleep(SERVER_LIFE_TIME);
+        Sleeper.sleep(context.getServerContext().lifeTime());
 
         System.out.println(PREFIX + "Прерывание работы сервера...");
         server.interrupt();

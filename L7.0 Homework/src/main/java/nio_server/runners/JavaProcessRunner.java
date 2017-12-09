@@ -1,5 +1,7 @@
 package nio_server.runners;
 
+import nio_server.Sleeper;
+import nio_server.context.GlobalContext;
 import nio_server.runners.printer.CharsPrinter;
 import nio_server.runners.printer.ProcessInputHandler;
 import nio_server.runners.printer.ProcessInputPrinter;
@@ -40,7 +42,9 @@ public class JavaProcessRunner {
         ProcessInputHandler errorGobbler = new ProcessInputHandler(this.process.getErrorStream(), "ERROR");
         ProcessInputHandler outputGobbler = new ProcessInputHandler(this.process.getInputStream(), "OUTPUT");
 
-        ProcessInputPrinter printer = new CharsPrinter();
+        // какой стиль печать данных, полученных из процесса
+        //ProcessInputPrinter printer = new CharsPrinter();
+        ProcessInputPrinter printer = GlobalContext.getInstance().getProcessContext().printer();
         errorGobbler.setPrinter(printer);
         outputGobbler.setPrinter(printer);
 

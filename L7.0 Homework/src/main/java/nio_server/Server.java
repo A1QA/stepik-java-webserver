@@ -1,5 +1,7 @@
 package nio_server;
 
+import nio_server.context.GlobalContext;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -13,10 +15,6 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import static java.util.Objects.isNull;
-import static nio_server.Settings.BUFFER_SIZE;
-import static nio_server.Settings.SERVER_CLOSES_CLIENT_SOCKETS;
-import static nio_server.Settings.SERVER_PAUSE_AFTER;
-
 
 /**
  * todo https://stepik.org/lesson/13019/step/9?unit=3263 выложить
@@ -30,15 +28,14 @@ public class Server implements Runnable {
 
     //todo регить n-й коннект у другого селектора в другом треде
 
-    //todo
-    //сравнить селекшенкей и кей, елс и иф елс тоже
-    //какие возвращает ключи в джава доке
-    //проверить количество акссеболов
-    //у ключа
+    //todo сравнить селекшенкей и кей, елс и иф елс тоже
+    //todo какие возвращает ключи в джава доке
+    //todo проверить количество акссеболов у ключа
 
 
     private static final String PREFIX = "Server: ";
     private final int port;
+    private final GlobalContext context = GlobalContext.getInstance();
 
     public Server(int port) {
         this.port = port;
@@ -68,7 +65,7 @@ public class Server implements Runnable {
      *
      * todo переслать уже полученные данные при интерапте
      * todo parse data для закрытия сокета
-     * todo сделать набор разных BrokeServer(с паузами и прекращеями работ в разных местах) для тестирования клиента
+     * todo сделать набор разных BrokenServer(с паузами и прекращеями работ в разных местах) для тестирования клиента
      *
      * */
     @Override
@@ -112,10 +109,10 @@ public class Server implements Runnable {
                 } else { // если интерапт на блокирующем selector.select();
                     System.out.println(PREFIX + "Нет готовых каналов");
                 }
-                Sleeper.sleep(SERVER_PAUSE_AFTER, PREFIX); // для экспериментов можно поставить паузу
+                Sleeper.sleep(context.getServerContext().pauseAfterIteration(), PREFIX); // для экспериментов можно поставить паузу
             }
 
-            if (SERVER_CLOSES_CLIENT_SOCKETS) {
+            if (context.getServerContext().closeClientsSockets()) {
                 close(selector);
             }
 
@@ -156,7 +153,7 @@ public class Server implements Runnable {
             }
 //      if (!buffers.isEmpty() &&) // todo частично заполненный буффер вытаскивать
 
-            ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
+            ByteBuffer buffer = ByteBuffer.allocate(context.getServerContext().bufferSize());
 
             System.out.println(PREFIX + "Чтение в буффер");
             int bytesRead = channel.read(buffer);

@@ -1,12 +1,11 @@
 package nio_server.socket_hadlers;
 
 import nio_server.Sleeper;
+import nio_server.context.ClientContext;
+import nio_server.context.GlobalContext;
 
 import java.net.Socket;
 
-import static nio_server.Settings.CLIENT_ITERATION;
-import static nio_server.Settings.CLIENT_PAUSE_AFTER_ITERATION;
-import static nio_server.Settings.CLIENT_PAUSE_MIDDLE;
 
 public class ReadHandler extends IOHandler {
 
@@ -17,17 +16,20 @@ public class ReadHandler extends IOHandler {
     @Override
     public void handle() {
 
+        GlobalContext context = GlobalContext.getInstance();
+        ClientContext client = context.getClientContext();
+
         System.out.println(PREFIX + "Соединение установлено");
 
-        for (int i = 0; i < CLIENT_ITERATION; i++) {
+        for (int i = 0; i < client.iterations(); i++) {
 
-            Sleeper.sleep(CLIENT_PAUSE_MIDDLE);
+            Sleeper.sleep(client.pauseBeforeIteration());
 
             System.out.println(PREFIX + "Чтение: ");
             getInputStreamHandler().handle();
             System.out.println(PREFIX + "Прочитано");
 
-            Sleeper.sleep(CLIENT_PAUSE_AFTER_ITERATION);
+            Sleeper.sleep(client.pauseAfterIteration());
         }
 
     }
