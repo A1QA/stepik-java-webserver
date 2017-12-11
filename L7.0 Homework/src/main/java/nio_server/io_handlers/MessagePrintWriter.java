@@ -1,5 +1,7 @@
 package nio_server.io_handlers;
 
+import nio_server.logger.Logger;
+
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -16,6 +18,7 @@ import static java.util.Objects.isNull;
 public class MessagePrintWriter extends MessageOutputStreamHandler {
 
     private PrintWriter writer;
+    private Logger logger = Logger.getInstance();
 
     public MessagePrintWriter(OutputStream output) {
         this.writer = new PrintWriter(new OutputStreamWriter(output));
@@ -33,7 +36,8 @@ public class MessagePrintWriter extends MessageOutputStreamHandler {
             writer.println(getMessage());
 
             if (writer.checkError()) {
-                System.err.println("Проблемы с MessagePrintWriter");
+                //System.err.println("Проблемы с MessagePrintWriter");
+                logger.log(this,"Проблемы с MessagePrintWriter");
             }
         }
     }

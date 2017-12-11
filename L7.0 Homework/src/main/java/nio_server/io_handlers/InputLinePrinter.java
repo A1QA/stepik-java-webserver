@@ -1,5 +1,7 @@
 package nio_server.io_handlers;
 
+import nio_server.logger.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +11,7 @@ import java.io.Reader;
 public class InputLinePrinter implements InputStreamHandler {
 
     private BufferedReader reader;
+    private Logger logger = Logger.getInstance();
 
     public InputLinePrinter(InputStream input) {
         reader = new BufferedReader(new InputStreamReader(input));
@@ -23,7 +26,8 @@ public class InputLinePrinter implements InputStreamHandler {
     @Override
     public void handle() {
         try {
-            System.out.println(reader.readLine());
+            //System.out.println(reader.readLine());
+            logger.log(this, reader.readLine());
         } catch (IOException e) {
             e.printStackTrace();
         }

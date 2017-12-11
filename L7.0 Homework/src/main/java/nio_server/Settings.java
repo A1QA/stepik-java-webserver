@@ -14,10 +14,15 @@ import nio_server.io_handlers.InputLineCharsPrinter;
 import nio_server.io_handlers.InputLinePrinter;
 import nio_server.io_handlers.InputStreamHandlerCreator;
 import nio_server.io_handlers.MessageBufferedWriter;
+import nio_server.io_handlers.MessageCharsWriter;
 import nio_server.io_handlers.MessageOutputStreamHandlerCreator;
 import nio_server.runners.printer.CharsPrinter;
 import nio_server.runners.printer.CharsWithInfoPrinter;
+import nio_server.runners.printer.LinePrinter;
+import nio_server.runners.printer.LineWithInfoPrinter;
 import nio_server.runners.printer.ProcessInputPrinter;
+
+import java.nio.charset.Charset;
 
 
 public final class Settings {
@@ -29,7 +34,12 @@ public final class Settings {
     //------------------------------------------------------------------------------------------------------------------
     // JavaProcessRunner
     public static final ProcessInputPrinter PROCESS_INPUT_PRINTER = new CharsPrinter();
-    // LinePrinter, LineWithInfoPrinter, CharsPrinter, CharsWithInfoPrinter
+    //// LinePrinter, LineWithInfoPrinter, CharsPrinter, CharsWithInfoPrinter
+    // для Chars*Printer нужно сделать синхронизацию _процессов_
+
+    // ProcessInputHandler
+    public static final Charset PROCESS_OUTPUT_CHARSET = Charset.forName("CP1251"); // utf-8, CP866, CP1251
+
 
     //------------------------------------------------------------------------------------------------------------------
     // ServerStarter
@@ -53,10 +63,10 @@ public final class Settings {
     public static final String CLIENT_MESSAGE = "TEST1234567890QWERTY№";
 
     // ClientStarter: IOSocketHandler
-    public static final MessageOutputStreamHandlerCreator MESSAGE_OUTPUT_HANDLER_CREATOR = MessageBufferedWriter::new;
-    // MessageBufferedWriter, MessagePrintWriter, MessageCharsWriter
-    public static final InputStreamHandlerCreator INPUT_HANDLER_CREATOR = InputLinePrinter::new;
-    // InputLinePrinter, InputLineCharsPrinter
+    public static final MessageOutputStreamHandlerCreator MESSAGE_OUTPUT_HANDLER_CREATOR = MessageCharsWriter::new;
+    //// MessageBufferedWriter, MessagePrintWriter, MessageCharsWriter
+    public static final InputStreamHandlerCreator INPUT_HANDLER_CREATOR = InputLineCharsPrinter::new;
+    //// InputLinePrinter, InputLineCharsPrinter
 
 
 }

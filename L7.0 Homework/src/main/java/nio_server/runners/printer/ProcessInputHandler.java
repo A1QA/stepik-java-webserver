@@ -1,5 +1,8 @@
 package nio_server.runners.printer;
 
+import nio_server.context.GlobalContext;
+import nio_server.logger.Logger;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,8 +13,9 @@ import java.util.Objects;
 public class ProcessInputHandler extends Thread {
     private InputStream is;
     private String type;
-    private Charset charset = Charset.forName("CP1251"); // utf-8, CP866, CP1251
+    private Charset charset = GlobalContext.getInstance().getProcessContext().charset();
     private ProcessInputPrinter printer;
+    private Logger logger = Logger.getInstance();
 
     public void setCharset(Charset charset) {
         this.charset = charset;
@@ -35,7 +39,8 @@ public class ProcessInputHandler extends Thread {
             if (!Objects.isNull(printer)) {
                 printer.print(br, type);
             } else {
-                System.err.println("ProcessInputPrinter не установлен.");
+                //System.err.println("ProcessInputPrinter не установлен.");
+                logger.err(this, "ProcessInputPrinter не установлен.");
             }
 
         } catch (IOException ex){

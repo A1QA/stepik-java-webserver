@@ -3,12 +3,14 @@ package nio_server.runners;
 import nio_server.Sleeper;
 import nio_server.context.GlobalContext;
 import nio_server.context.SettingsProcessContext;
+import nio_server.logger.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class ProcessRunner {
 
+    private static Logger logger = Logger.getInstance();
     private static final String CLASS_PATH = "\"./L7.0 Homework/target/classes\"";
     private static final String PREFIX = "ProcessRunner: ";
 
@@ -24,7 +26,8 @@ public class ProcessRunner {
     private static void runServer() {
         JavaProcessRunner process = new JavaProcessRunner(JavaProcessRunner.getProcessCommand(CLASS_PATH, ServerStarter.class.getCanonicalName()));
         try {
-            System.out.println(PREFIX + "Запуск сервера в новом процессе");
+            //System.out.println(PREFIX + "Запуск сервера в новом процессе");
+            logger.log(ProcessRunner.class, "Запуск сервера в новом процессе");
             process.runProcess();
         } catch (IOException e) {
             e.printStackTrace();
@@ -36,13 +39,15 @@ public class ProcessRunner {
             e.printStackTrace();
         }
         process.destroy();
-        System.out.println(PREFIX + "Процесс сервера завершен");
+        //System.out.println(PREFIX + "Процесс сервера завершен");
+        logger.log(ProcessRunner.class, "Процесс сервера завершен");
     }
 
     private static void runClient() {
         JavaProcessRunner process = new JavaProcessRunner(JavaProcessRunner.getProcessCommand(CLASS_PATH, ClientStarter.class.getCanonicalName()));
         try {
-            System.out.println(PREFIX + "Запуск клиента в новом процессе");
+            //System.out.println(PREFIX + "Запуск клиента в новом процессе");
+            logger.log(ProcessRunner.class, "Запуск клиента в новом процессе");
             process.runProcess();
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,6 +59,8 @@ public class ProcessRunner {
             e.printStackTrace();
         }
         process.destroy();
-        System.out.println(PREFIX + "Процесс клиента завершен");
+        //System.out.println(PREFIX + "Процесс клиента завершен");
+        logger.log(ProcessRunner.class, "Процесс клиента завершен");
+
     }
 }
