@@ -26,9 +26,18 @@
  папку с запускаемым модулем (Run/Debug Configurations -> Working Directory - MODULE_DIR), 
  иначе относительные пути к файлам не будут правильно разрешены во время работы программ.
 
+### Ссылки на тестирующие приложения
+- [HW01.zip](https://stepik.org/media/attachments/lesson/12196/HW01.zip)
+- [HW02.zip](https://stepik.org/media/attachments/lesson/12497/HW02.zip)
+- [HW03.zip](https://stepik.org/media/attachments/lesson/12405/HW03.zip)
+- [HW04.zip](https://stepik.org/media/attachments/lesson/12403/HW04.zip)
+- [HW05.zip](https://stepik.org/media/attachments/lesson/12512/HW05.zip)
+- [HW06.zip](https://stepik.org/media/attachments/lesson/13016/HW06.zip)
+- [HW07.zip](https://stepik.org/media/attachments/lesson/13019/HW07.zip)
 
 
-[stepik]:           <https://stepik.org/>
+
+[stepik]:           <https://stepik.org>
 [first-course]:     <https://stepik.org/course/146>
 [second-course]:    <https://stepik.org/course/186>
 [synopsis]:         <https://github.com/b4w/Education/wiki>
