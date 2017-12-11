@@ -1,7 +1,6 @@
-# idea project files
+# Idea project files
 .idea/
 *.iml
-L*/*.iml
 *.ipr
 *.iws
 
@@ -14,10 +13,13 @@ L*/*.iml
 
 target
 
-# Package Files #
+# Package Files
 *.jar
 *.war
 *.ear
+*.zip
+*.tar.gz
+*.rar
 
-# Log
+# Log file
 *.log
