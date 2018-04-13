@@ -1,4 +1,4 @@
-# Stepik: Java webserver
+# [Stepik: Java webserver](https://alternatione.github.io/stepik-java-webserver/)
 Полностью пройденный курс "Разработка веб сервиса на Java" на [stepik.org][stepik]
 
 Решение практических задач 1-5 уроков сделаны путем модификации примеров кода. 
